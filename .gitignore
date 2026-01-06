@@ -1,0 +1,25 @@
+# ===============================
+# MongoDB (local / docker data)
+# ===============================
+mongo-data/
+mongo-config/
+
+# MongoDB init script (contains creds / setup)
+init-mongo.js
+
+# ===============================
+# Docker
+# ===============================
+docker-compose.yml
+
+# ===============================
+# OS / IDE (recommended extras)
+# ===============================
+.DS_Store
+*.log
+
+# IntelliJ / IDE
+.idea/
+*.iml
+out/
+target/
