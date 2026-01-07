@@ -4,26 +4,27 @@ import com.google.common.net.HttpHeaders;
 import org.springframework.beans.factory.annotation.Configurable;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
 import org.springframework.http.MediaType;
 import org.springframework.web.reactive.function.client.ExchangeStrategies;
 import org.springframework.web.reactive.function.client.WebClient;
 
 import java.util.Base64;
 
-@Configurable
+@Configuration
 public class WebClientConfig {
     @Value("${restheart.base-url}")
     private String restHeartBaseUrl;
 
-    @Value("${restheart.username}")
+    @Value("${restheart.username:admin}")
     private String restHeartUsername;
 
-    @Value("${restheart.password}")
+    @Value("${restheart.password:secret}")
     private String restHeartPassword;
 
     @Bean
     public WebClient restHeartWebClient() {
-        String basicAuth= "Basic" + Base64.getEncoder()
+        String basicAuth =Base64.getEncoder()
                 .encodeToString((restHeartUsername + ":" + restHeartPassword).getBytes());
 
         ExchangeStrategies strategies = ExchangeStrategies.builder()
@@ -37,4 +38,5 @@ public class WebClientConfig {
                 .defaultHeader(HttpHeaders.ACCEPT, MediaType.APPLICATION_JSON_VALUE)
                 .build();
     }
+
 }

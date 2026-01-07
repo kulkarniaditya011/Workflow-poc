@@ -12,6 +12,7 @@ spring:
     serialization:
       write-dates-as-timestamps: false
 
+
 server:
   port: 8081
 
@@ -48,6 +49,6 @@ springdoc:
   show-actuator: true
 
 restheart:
-  base-url: http://restheart:8080
+  base-url: http://localhost:8080/
   username: admin
   password: secret
