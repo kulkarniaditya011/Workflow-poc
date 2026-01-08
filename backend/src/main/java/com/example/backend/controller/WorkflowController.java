@@ -17,9 +17,8 @@ public class WorkflowController {
     private final WorkflowService workflowService;
 
     @PostMapping("/create-workflow")
-    public ResponseEntity<ApiResponse<CreateWorkflowDTO>> createWorkflow(@Valid @RequestBody CreateWorkflowDTO createWorkflowDTO) {
+    public ResponseEntity<ApiResponse<String>> createWorkflow(@Valid @RequestBody CreateWorkflowDTO createWorkflowDTO) {
         return ResponseEntity.status(HttpStatus.OK).body(workflowService.createWorkflow(createWorkflowDTO));
     }
-
 
 }

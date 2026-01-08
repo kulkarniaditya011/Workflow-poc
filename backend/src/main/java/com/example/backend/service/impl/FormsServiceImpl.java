@@ -84,66 +84,6 @@ public class FormsServiceImpl implements FormsService {
         return ResponseUtil.getResponse(forms, "Form retrieved successfully");
     }
 
-
-//    @Override
-//    public ApiResponse<FormsDTO> getFormById(String formId) {
-//        Form form = restHeartService.getById(FORMS_COLLECTION, formId)
-//                .map(map -> pagebleObject.map(map, Form.class))
-//                .block();
-//
-//        if (form == null) {
-//            throw new RuntimeException("Form not found with id: " + formId);
-//        }
-//
-//        FormsDTO formDTO = pagebleObject.map(form, FormsDTO.class);
-//        return ResponseUtil.getResponse(formDTO, "Form retrieved successfully");
-//    }
-//
-//    @Override
-//    public ApiResponse<List<FormsDTO>> getAllForms() {
-//        List<FormsDTO> forms = restHeartService.getAll(FORMS_COLLECTION)
-//                .map(map -> pagebleObject.map(map, Form.class))
-//                .map(form -> pagebleObject.map(form, FormsDTO.class))
-//                .collectList()
-//                .block();
-//
-//        return ResponseUtil.getResponse(forms, "Forms retrieved successfully");
-//    }
-//
-//    @Override
-//    public ApiResponse<FormsDTO> updateForm(String formId, FormsDTO formsDTO) {
-//        validationUtil.validate(formsDTO);
-//
-//        // Validate and map form fields
-//        List<FormField> formFields = pagebleObject.mapList(
-//                formsDTO.getFields()
-//                        .stream()
-//                        .map(this::validateFromFields)
-//                        .collect(Collectors.toList()),
-//                FormField.class);
-//
-//        // Map DTO to Form entity
-//        Form form = pagebleObject.map(formsDTO, Form.class);
-//        form.setId(formId);
-//        form.setFields(formFields);
-//
-//        // Update in RestHeart
-//        Map updatedMap = restHeartService.update(FORMS_COLLECTION, formId,
-//                        pagebleObject.map(form, Map.class))
-//                .block();
-//
-//        Form updatedForm = pagebleObject.map(updatedMap, Form.class);
-//        FormsDTO updatedDTO = pagebleObject.map(updatedForm, FormsDTO.class);
-//
-//        return ResponseUtil.getResponse(updatedDTO, "Form updated successfully");
-//    }
-//
-//    @Override
-//    public ApiResponse<Void> deleteForm(String formId) {
-//        restHeartService.delete(FORMS_COLLECTION, formId).block();
-//        return ResponseUtil.getResponse(null, "Form deleted successfully");
-//    }
-
     private FormFieldsDTO validateFromFields(FormFieldsDTO fieldsDTO) {
         Set<ConstraintViolation<FormFieldsDTO>> violations = validator.validate(fieldsDTO);
         if (!violations.isEmpty()) {

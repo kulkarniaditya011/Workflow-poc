@@ -44,4 +44,8 @@ public class PagebleObject {
             return null;
         }
     }
+
+    public <T> T convertValue(Object fromValue, Class<T> toValueType) {
+        return objectMapper.convertValue(fromValue, toValueType);
+    }
 }

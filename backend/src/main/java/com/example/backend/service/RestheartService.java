@@ -27,19 +27,19 @@ public class RestheartService {
         this.objectMapper = objectMapper;
     }
 
-    public Mono<Map> create(String collection, Map<String, Object> document) {
-        return restHeartWebClient
-                .post()
-                .uri("workflow_platform/{collection}" + collection)
-                .bodyValue(document)
-                .retrieve()
-                .bodyToMono(Map.class);
-    }
+//    public Mono<Map> create(String collection, Map<String, Object> document) {
+//        return restHeartWebClient
+//                .post()
+//                .uri("workflow_platform/{collection}" + collection)
+//                .bodyValue(document)
+//                .retrieve()
+//                .bodyToMono(Map.class);
+//    }
 
     public <T> Mono<T> create(String collection, T object, Class<T> entityClass) {
 
         Map<String, Object> document = objectMapper.convertValue(object, Map.class);
-        log.info("Getting the form object from form Service:{}", document.toString());
+//        log.info("Getting the form object from form Service:{}", document.toString());
         document.remove("_etag");
         document.remove("_rev");
 
@@ -88,7 +88,7 @@ public class RestheartService {
     public Flux<Map> getWithFilter(String collection, Map<String, Object> filterCriteria) {
         try {
             String filterJson = objectMapper.writeValueAsString(filterCriteria);
-            log.info("Filtering form object from form Service: {}", filterJson);
+//            log.info("Filtering form object from form Service: {}", filterJson);
 
             return restHeartWebClient
                     .get()

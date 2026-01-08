@@ -5,5 +5,5 @@ import com.example.backend.response.ApiResponse;
 import jakarta.validation.Valid;
 
 public interface ProcessService {
-    ApiResponse<ProcessDTO> createProcess(@Valid ProcessDTO processDTO);
+    ApiResponse<String> createProcess(@Valid ProcessDTO processDTO);
 }

@@ -2,7 +2,10 @@ package com.example.backend.dto;
 
 import com.example.backend.model.WorkflowMetadata;
 import jakarta.validation.constraints.NotBlank;
-import lombok.*;
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 
 import java.util.List;
 
@@ -11,8 +14,6 @@ import java.util.List;
 @AllArgsConstructor
 @NoArgsConstructor
 public class CreateWorkflowDTO {
-
-    private String id;
 
     @NotBlank(message = "Tenant id cannot be blank")
     private String tenantId;
@@ -24,10 +25,8 @@ public class CreateWorkflowDTO {
 
     private String description;
 
-    private List<String> processes;
-
-    private WorkflowMetadata  workflowMetadata;
-
+    private List<String> processId;
+    private WorkflowMetadata workflowMetadata;
     private String status= "active";
 
 }

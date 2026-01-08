@@ -19,7 +19,7 @@ public class ProcessController {
     private final ProcessService processService;
 
     @PostMapping("/create-process")
-    public ResponseEntity<ApiResponse<ProcessDTO>> createProcess(@Valid @RequestBody ProcessDTO processDTO){
+    public ResponseEntity<ApiResponse<String>> createProcess(@Valid @RequestBody ProcessDTO processDTO){
         return ResponseEntity.status(HttpStatus.OK).body(processService.createProcess(processDTO));
     }
 }

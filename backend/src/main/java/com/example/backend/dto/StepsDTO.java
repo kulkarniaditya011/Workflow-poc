@@ -1,9 +1,7 @@
 package com.example.backend.dto;
 
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import jakarta.validation.constraints.NotEmpty;
+import lombok.*;
 
 import java.util.List;
 
@@ -11,7 +9,9 @@ import java.util.List;
 @Setter
 @AllArgsConstructor
 @NoArgsConstructor
+@ToString
 public class StepsDTO {
+    @NotEmpty(message = "step id cannot be empty")
     private String stepId;
     private String name;
     private Integer sequence;
