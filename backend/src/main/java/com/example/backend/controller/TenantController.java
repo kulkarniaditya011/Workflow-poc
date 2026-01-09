@@ -1,5 +1,6 @@
 package com.example.backend.controller;
 
+import com.example.backend.common.ResponseUtil;
 import com.example.backend.dto.TenantDTO;
 import com.example.backend.repository.TenantRepository;
 import com.example.backend.response.ApiResponse;
@@ -13,21 +14,30 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 @RestController
-@RequestMapping("/api/tenant")
+@RequestMapping("/api/tenants")
 @RequiredArgsConstructor
 public class TenantController {
 
     private final TenantService tenantService;
 
-    @PostMapping("/create-tenant")
+    @PostMapping
     public ResponseEntity<ApiResponse<String>> createTenant(@Valid @RequestBody TenantDTO tenantDTO) {
-        return ResponseEntity.status(HttpStatus.OK).body(tenantService.createTenant(tenantDTO));
+        return ResponseEntity.status(HttpStatus.CREATED).body(tenantService.createTenant(tenantDTO));
     }
 
-    @GetMapping("/get-tenants")
+    @GetMapping
     public ResponseEntity<ApiResponse<List<TenantDTO>>> getTenants() {
         return ResponseEntity.status(HttpStatus.OK).body(tenantService.getAllTenants());
     }
 
+    @PutMapping
+    public ResponseEntity<ApiResponse<String>> updateTenant(@Valid @RequestBody TenantDTO tenantDTO) {
+        return ResponseEntity.status(HttpStatus.OK).body(ResponseUtil.getResponseMessage("test"));
+    }
+
+    @DeleteMapping
+    public ResponseEntity<ApiResponse<String>> deleteTenant(@RequestParam String tenantId) {
+        return ResponseEntity.status(HttpStatus.NO_CONTENT).body(ResponseUtil.getResponseMessage("test"));
+    }
 
 }

@@ -17,7 +17,7 @@ import java.util.List;
 @Getter
 @AllArgsConstructor
 @NoArgsConstructor
-@Document("Process")
+@Document("process")
 @Builder
 @ToString
 @JsonIgnoreProperties(ignoreUnknown = true)

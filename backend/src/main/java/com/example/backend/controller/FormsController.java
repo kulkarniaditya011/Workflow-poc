@@ -1,5 +1,6 @@
 package com.example.backend.controller;
 
+import com.example.backend.common.ResponseUtil;
 import com.example.backend.dto.CreateFormDTO;
 import com.example.backend.dto.FormsDTO;
 import com.example.backend.response.ApiResponse;
@@ -17,14 +18,24 @@ public class FormsController {
 
     private final FormsService formsService;
 
-    @PostMapping("/create-forms")
+    @PostMapping
     public ResponseEntity<ApiResponse<String>> createForm( @Valid @RequestBody CreateFormDTO formsDTO) {
-        return ResponseEntity.status(HttpStatus.OK).body(formsService.createForms(formsDTO));
+        return ResponseEntity.status(HttpStatus.CREATED).body(formsService.createForms(formsDTO));
     }
 
-    @GetMapping("/getFormByFormId")
+    @GetMapping
     public ResponseEntity<ApiResponse<FormsDTO>> getFormByFormId(@RequestParam String formId) {
-        return ResponseEntity.status(HttpStatus.OK).body(formsService.getFormsByFormId(formId));
+        return ResponseEntity.status(HttpStatus.CREATED).body(formsService.getFormsByFormId(formId));
+
     }
 
+    @PutMapping
+    public ResponseEntity<ApiResponse<String>> updateForm(@Valid @RequestBody FormsDTO formsDTO) {
+        return ResponseEntity.status(HttpStatus.OK).body(ResponseUtil.getResponseMessage("test"));
+    }
+
+    @DeleteMapping
+    public ResponseEntity<ApiResponse<String>> deleteForm(@RequestParam String formId) {
+        return ResponseEntity.status(HttpStatus.NO_CONTENT).body(ResponseUtil.getResponseMessage("test"));
+    }
 }

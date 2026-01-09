@@ -31,17 +31,11 @@ public class WorkflowInstance {
     "applicantName": "John Doe",
     "creditScore": 720
   } */
-
-
-    // Reference to the entity being processed
-    private String entityName; // "loan_application"
-    private String entityId; // "LOAN-2024-00123"
+    private List<String> processId;
 
     // Current workflow state
     private String status;
     private String currentStepId;
-
-    private List<StepHistory> stepHistories;
 
     @Builder.Default
     private InstanceMetadata metadata= new InstanceMetadata();
