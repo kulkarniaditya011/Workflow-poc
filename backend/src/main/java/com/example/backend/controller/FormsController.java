@@ -23,19 +23,25 @@ public class FormsController {
         return ResponseEntity.status(HttpStatus.CREATED).body(formsService.createForms(formsDTO));
     }
 
-    @GetMapping
-    public ResponseEntity<ApiResponse<FormsDTO>> getFormByFormId(@RequestParam String formId) {
-        return ResponseEntity.status(HttpStatus.CREATED).body(formsService.getFormsByFormId(formId));
+    @GetMapping("/{formId}")
+    public ResponseEntity<ApiResponse<FormsDTO>> getFormByFormId(@PathVariable String formId) {
+        return ResponseEntity.status(HttpStatus.OK).body(formsService.getFormsByFormId(formId));
 
     }
 
-    @PutMapping
-    public ResponseEntity<ApiResponse<String>> updateForm(@Valid @RequestBody FormsDTO formsDTO) {
+    @PutMapping("/{formId}")
+    public ResponseEntity<ApiResponse<String>> updateForm(@Valid @RequestBody FormsDTO formsDTO, @PathVariable String formId) {
         return ResponseEntity.status(HttpStatus.OK).body(ResponseUtil.getResponseMessage("test"));
     }
 
-    @DeleteMapping
-    public ResponseEntity<ApiResponse<String>> deleteForm(@RequestParam String formId) {
-        return ResponseEntity.status(HttpStatus.NO_CONTENT).body(ResponseUtil.getResponseMessage("test"));
+    @DeleteMapping("/{formId}")
+    public ResponseEntity<ApiResponse<String>> deleteForm(@PathVariable String formId) {
+        return ResponseEntity.status(HttpStatus.OK).body(ResponseUtil.getResponseMessage("test"));
     }
+
+    @PostMapping("/submit/{formId}")
+    public ResponseEntity<ApiResponse<String>> submitForm(@PathVariable String formId) {
+        return ResponseEntity.status(HttpStatus.OK).body(ResponseUtil.getResponseMessage("test"));
+    }
+
 }

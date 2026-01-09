@@ -3,9 +3,7 @@ package com.example.backend.service.impl;
 import com.example.backend.common.PagebleObject;
 import com.example.backend.common.ResponseUtil;
 import com.example.backend.common.ValidationUtil;
-import com.example.backend.dto.FormFieldsDTO;
 import com.example.backend.dto.ProcessDTO;
-import com.example.backend.dto.StepsDTO;
 import com.example.backend.exceptions.RestApiException;
 import com.example.backend.model.Process;
 import com.example.backend.model.Steps;
@@ -13,8 +11,6 @@ import com.example.backend.repository.ProcessRepository;
 import com.example.backend.response.ApiResponse;
 import com.example.backend.service.ProcessService;
 import com.example.backend.service.RestheartService;
-import jakarta.validation.ConstraintViolation;
-import jakarta.validation.ConstraintViolationException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
@@ -22,7 +18,6 @@ import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 
 @Slf4j
 @Service
@@ -42,10 +37,11 @@ public class ProcessServiceImpl implements ProcessService {
         //validating steps
         List<Steps> steps=pagebleObject.mapList(processDTO.getProcessSteps()
                         .stream()
-                        .map(validationUtil::validateFromFields)
+                        .map(validationUtil::validateFields)
                         .toList()
                         ,Steps.class);
         log.info("Steps after validation and mapping {}", steps.toString());
+
         //checking for existing processes based on process id
         Map<String, Object> filter= Map.of("processId", processDTO.getProcessId());
         if(restheartService.getWithFilter("process", filter)
@@ -53,6 +49,7 @@ public class ProcessServiceImpl implements ProcessService {
                 .blockFirst() !=null){
             throw new RestApiException(String.format("Process with id %s already exists", processDTO.getProcessId()), HttpStatus.BAD_REQUEST);
         }
+
        Process process= Process.builder()
                 .processId(processDTO.getProcessId())
                 .WorkflowId(processDTO.getWorkflowId())

@@ -20,7 +20,7 @@ public class ValidationUtil {
         }
     }
 
-    public <T> T validateFromFields(T obj) {
+    public <T> T validateFields(T obj) {
         Set<ConstraintViolation<T>> violations = validator.validate(obj);
         if (!violations.isEmpty()) {
             throw new ConstraintViolationException(violations);

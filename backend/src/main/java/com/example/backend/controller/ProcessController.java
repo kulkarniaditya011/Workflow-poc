@@ -21,18 +21,34 @@ public class ProcessController {
         return ResponseEntity.status(HttpStatus.CREATED).body(processService.createProcess(processDTO));
     }
 
-    @GetMapping
-    public ResponseEntity<ApiResponse<ProcessDTO>> getProcess(){
+    @GetMapping("/{processId}")
+    public ResponseEntity<ApiResponse<ProcessDTO>> getProcess(@PathVariable String processId){
         return ResponseEntity.status(HttpStatus.FOUND).body(ResponseUtil.getResponseMessage("test"));
     }
 
-    @PutMapping
-    public ResponseEntity<ApiResponse<ProcessDTO>> updateProcess(@Valid @RequestBody ProcessDTO processDTO){
+    @PutMapping("/{processId}")
+    public ResponseEntity<ApiResponse<ProcessDTO>> updateProcess(@Valid @RequestBody ProcessDTO processDTO,
+                                                                 @PathVariable String processId){
         return ResponseEntity.status(HttpStatus.OK).body(ResponseUtil.getResponseMessage("test"));
     }
 
-    @DeleteMapping
-    public ResponseEntity<ApiResponse<String>> deleteProcess(@Valid @RequestBody ProcessDTO processDTO){
+    @DeleteMapping("/{processId}")
+    public ResponseEntity<ApiResponse<String>> deleteProcess(@PathVariable String processId){
         return ResponseEntity.status(HttpStatus.NO_CONTENT).body(ResponseUtil.getResponseMessage("test"));
+    }
+
+    @PostMapping("/executions/{processId}")
+    public ResponseEntity<ApiResponse<String>> executeProcess(@PathVariable String processId){
+        return ResponseEntity.status(HttpStatus.OK).body(ResponseUtil.getResponseMessage("test"));
+    }
+
+    @GetMapping("next/{processId}")
+    public ResponseEntity<ApiResponse<String>> getNextProcess(@PathVariable String processId){
+        return ResponseEntity.status(HttpStatus.OK).body(ResponseUtil.getResponseMessage("test"));
+    }
+
+    @GetMapping("/status/{processId}" )
+    public ResponseEntity<ApiResponse<String>> getProcessStatus(@PathVariable String processId) {
+        return ResponseEntity.status(HttpStatus.OK).body(ResponseUtil.getResponseMessage("test"));
     }
 }

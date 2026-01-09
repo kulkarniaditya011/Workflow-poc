@@ -25,18 +25,22 @@ public class WorkflowController {
 
     @GetMapping
     public ResponseEntity<ApiResponse<String>> getWorkflows(){
-        return ResponseEntity.status(HttpStatus.CREATED).body(ResponseUtil.getResponseMessage("test"));
-    }
-
-    @PutMapping
-    public ResponseEntity<ApiResponse<String>> updateWorkflow(@Valid @RequestBody WorkflowDTO workflowDTO){
         return ResponseEntity.status(HttpStatus.OK).body(ResponseUtil.getResponseMessage("test"));
     }
 
-    @DeleteMapping
-    public ResponseEntity<ApiResponse<String>> deleteWorkflow(@RequestParam String workflowId){
+    @PutMapping("/{workflowId}")
+    public ResponseEntity<ApiResponse<String>> updateWorkflow(@Valid @RequestBody WorkflowDTO workflowDTO, @PathVariable String workflowId){
+        return ResponseEntity.status(HttpStatus.OK).body(ResponseUtil.getResponseMessage("test"));
+    }
+
+    @DeleteMapping("/{workflowId}")
+    public ResponseEntity<ApiResponse<String>> deleteWorkflow(@PathVariable String workflowId){
         return ResponseEntity.status(HttpStatus.NO_CONTENT).body(ResponseUtil.getResponseMessage("test"));
     }
 
+    @PostMapping("/executions/{workflowId}" )
+    public ResponseEntity<ApiResponse<String>> executeWorkflow(@PathVariable String workflowId) {
+        return ResponseEntity.status(HttpStatus.OK).body(ResponseUtil.getResponseMessage("test"));
+    }
 
 }
