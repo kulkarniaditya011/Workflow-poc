@@ -1,7 +1,6 @@
 package com.example.backend.config;
 
 import com.google.common.net.HttpHeaders;
-import org.springframework.beans.factory.annotation.Configurable;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;

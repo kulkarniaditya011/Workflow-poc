@@ -52,3 +52,7 @@ restheart:
   base-url: http://localhost:8080/
   username: admin
   password: secret
+
+secret:
+  key: e7440e98a7c9dfc3ee87f7238064c883e04f800f3674dea3e26ceffbb41d7d13
+
