@@ -10,22 +10,28 @@ import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
 import java.util.Map;
 
 @Service
 @RequiredArgsConstructor
-public class CustomUserService {
+public class UserService {
 
     private final RestheartService restheartService;
     private final PagebleObject pagebleObject;
 
 
-    public UserDetailsService loadUserByUsername(String username) throws UsernameNotFoundException {
-        return user -> {
-            Map<String,Object> filter = Map.of("email", user);
-             return restheartService.getWithFilter("users", filter)
-                     .map(obj-> pagebleObject.convertValue(obj, Users.class))
-                     .blockFirst();
+    public UserDetailsService userDetailsService(){
+        return new UserDetailsService() {
+            @Override
+            public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
+                Map<String, Object> filter = Map.of("email", username);
+                return restheartService.getWithFilter("users", filter)
+                        .map(obj-> pagebleObject.convertValue(obj, Users.class))
+                        .blockFirst();
+            }
         };
     }
+
 }
+

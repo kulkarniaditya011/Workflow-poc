@@ -6,4 +6,10 @@ import jakarta.validation.Valid;
 
 public interface ProcessService {
     ApiResponse<String> createProcess(@Valid ProcessDTO processDTO);
+
+    ApiResponse<ProcessDTO> updateProcess(String processDTO, String processId);
+
+    ApiResponse<ProcessDTO> getProcessByWorkflow(String workflowId);
+
+    ApiResponse<String> deleteProcess(String processId);
 }

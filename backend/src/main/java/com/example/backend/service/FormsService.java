@@ -9,4 +9,8 @@ public interface FormsService {
     ApiResponse<String> createForms(@Valid CreateFormDTO formsDTO);
 
     ApiResponse<FormsDTO> getFormsByFormId(String formId);
+
+    ApiResponse<String> updateForm(String payload, String formId);
+
+    ApiResponse<String> deleteForms(String formId);
 }

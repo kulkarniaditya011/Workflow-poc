@@ -26,9 +26,6 @@ public class WorkflowInstanceDTO {
 
     private Map<String, Property> properties;
 
-    private String entityName; // "loan_application"
-    private String entityId;
-
     private String status;
     private String currentStepId;
 

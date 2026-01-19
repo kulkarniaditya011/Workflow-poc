@@ -18,7 +18,7 @@ public class Steps {
 
     // Step-level assignment (who must perform this step)
     private List<String> assignedRoles; // e.g., ["APPROVER", "MANAGER"]
-    private List<String> assignedUsers; // Specific user IDs (optional, for direct assignment)
+    private List<String> assignedUsers; //  user IDs
 
     private String formId; // If this step requires form submission
 

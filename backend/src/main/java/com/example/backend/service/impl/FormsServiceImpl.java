@@ -9,11 +9,14 @@ import com.example.backend.dto.FormResponseDTO;
 import com.example.backend.dto.FormsDTO;
 import com.example.backend.exceptions.RestApiException;
 import com.example.backend.model.FormField;
+import com.example.backend.model.FormMetadata;
 import com.example.backend.model.Forms;
 import com.example.backend.repository.FormRepository;
 import com.example.backend.response.ApiResponse;
 import com.example.backend.service.FormsService;
 import com.example.backend.service.RestheartService;
+import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.validation.ConstraintViolation;
 import jakarta.validation.ConstraintViolationException;
@@ -23,9 +26,11 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.function.Consumer;
 import java.util.stream.Collectors;
 
 @Slf4j
@@ -84,12 +89,92 @@ public class FormsServiceImpl implements FormsService {
         return ResponseUtil.getResponse(forms, "Form retrieved successfully");
     }
 
+    @Override
+    public ApiResponse<String> updateForm(String payload, String formId) {
+        JsonNode jsonNode = pagebleObject.getJsonNode(payload);
+        // Fetch existing
+        Map<String, Object> filter = Map.of("formId", formId);
+        Forms existing = restHeartService.getWithFilter("forms", filter)
+                .map(map -> pagebleObject.convertValue(map, Forms.class))
+                .blockFirst();
+
+        if (existing == null) {
+            throw new RestApiException("Form not found with formId: " + formId, HttpStatus.NOT_FOUND);
+        }
+
+        // Field update map
+        Map<String, Consumer<Object>> updaters = getConsumerMap(existing);
+
+        applyPatch(jsonNode, updaters);
+
+        restHeartService.upsert("forms", existing.getId(), existing).block();
+
+        return ResponseUtil.getResponseMessage("Form updated successfully");
+    }
+
+    private Map<String, Consumer<Object>> getConsumerMap(Forms existing) {
+        Map<String, Consumer<Object>> updaters = new HashMap<>();
+
+        updaters.put("name", v -> existing.setName((String) v));
+        updaters.put("description", v -> existing.setDescription((String) v));
+        updaters.put("status", v -> existing.setStatus((String) v));
+        updaters.put("tenantId", v -> existing.setTenantId((String) v));
+        updaters.put("formId", v -> existing.setFormId((String) v));
+
+        updaters.put("metadata", v ->
+                existing.setMetadata(pagebleObject.convertValue(v, FormMetadata.class))
+        );
+
+        updaters.put("fields", v -> {
+            List<FormFieldsDTO> fieldDTOs =
+                    pagebleObject.convertValue(v, new TypeReference<List<FormFieldsDTO>>() {});
+            List<FormField> validated =
+                    fieldDTOs.stream().map(this::validateFromFields)
+                            .map(formFieldDTO-> pagebleObject.convertValue(formFieldDTO, FormField.class))
+                            .toList();
+            existing.setFields(validated);
+        });
+        return updaters;
+    }
+
+
+    private void applyPatch(JsonNode jsonNode,
+                            Map<String, Consumer<Object>> fieldUpdaters) {
+
+        fieldUpdaters.forEach((field, updater) -> {
+            if (jsonNode.has(field)) {
+                JsonNode node = jsonNode.get(field);
+                if (!node.isNull()) {
+                    Object value = pagebleObject.convertValue(node, Object.class);
+                    updater.accept(value);
+                }
+            }
+        });
+    }
+
     private FormFieldsDTO validateFromFields(FormFieldsDTO fieldsDTO) {
         Set<ConstraintViolation<FormFieldsDTO>> violations = validator.validate(fieldsDTO);
         if (!violations.isEmpty()) {
             throw new ConstraintViolationException(violations);
         }
         return fieldsDTO;
+    }
+
+
+    @Override
+    public ApiResponse<String> deleteForms(String formId) {
+        Map<String, Object> filter = Map.of("formId", formId);
+        Forms existing = restHeartService.getWithFilter("forms", filter)
+                .map(map -> pagebleObject.convertValue(map, Forms.class))
+                .blockFirst();
+
+        if (existing == null) {
+            throw new RestApiException("Form not found with formId: " + formId, HttpStatus.NOT_FOUND);
+        }
+
+        restHeartService.delete("forms", existing.getId()).block();
+
+        return ResponseUtil.getResponseMessage("Form deleted successfully");
     }
 
 }

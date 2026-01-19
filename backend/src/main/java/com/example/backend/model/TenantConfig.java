@@ -14,5 +14,4 @@ public class TenantConfig {
     private String timezone; // "Asia/Kolkata", "America/New_York"
     private String currency; // "INR", "USD"
     private String dateFormat; // "DD-MM-YYYY", "MM/DD/YYYY"
-    private Map<String, Object> customSettings; // Tenant-specific settings
 }

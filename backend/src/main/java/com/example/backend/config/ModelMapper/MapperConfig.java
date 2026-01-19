@@ -1,4 +1,4 @@
-package com.example.backend.config;
+package com.example.backend.config.ModelMapper;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;

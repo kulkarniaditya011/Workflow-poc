@@ -4,6 +4,7 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatusCode;
 import org.springframework.stereotype.Service;
 import org.springframework.web.reactive.function.client.WebClient;
 import reactor.core.publisher.Flux;
@@ -27,17 +28,7 @@ public class RestheartService {
         this.objectMapper = objectMapper;
     }
 
-//    public Mono<Map> create(String collection, Map<String, Object> document) {
-//        return restHeartWebClient
-//                .post()
-//                .uri("workflow_platform/{collection}" + collection)
-//                .bodyValue(document)
-//                .retrieve()
-//                .bodyToMono(Map.class);
-//    }
-
     public <T> Mono<T> create(String collection, T object, Class<T> entityClass) {
-
         Map<String, Object> document = objectMapper.convertValue(object, Map.class);
 //        log.info("Getting the form object from form Service:{}", document.toString());
         document.remove("_etag");
@@ -51,9 +42,20 @@ public class RestheartService {
                                 .build(collection)
                 )
                 .bodyValue(document)
-                .retrieve()
-                .toBodilessEntity()
-                .thenReturn(object);
+                .exchangeToMono(response -> {
+                    if (response.statusCode().is2xxSuccessful()) {
+                        return response.bodyToMono(Map.class)
+                                .doOnNext(body -> log.info("RESTHeart created: {}", body))
+                                .thenReturn(object);
+                    } else {
+                        return response.bodyToMono(String.class)
+                                .flatMap(err -> {
+                                    log.error("RESTHeart error {} → {}", response.statusCode(), err);
+                                    return Mono.error(new RuntimeException("RESTHeart insert failed"));
+                                });
+                    }
+                });
+
     }
 
     public Mono<Map> findById(String collection, String id){
@@ -116,10 +118,21 @@ public class RestheartService {
     public Mono<Void> delete(String collection, String documentId) {
         return restHeartWebClient
                 .delete()
-                .uri("workflow_platform/{collection}/{id}", collection, documentId)
+                .uri(uriBuilder -> uriBuilder
+                        .path("/workflow_platform/{collection}/{id}")
+                        .build(collection, documentId))
                 .retrieve()
+                .onStatus(
+                        HttpStatusCode::is4xxClientError,
+                        response -> Mono.error(new RuntimeException("Document not found"))
+                )
+                .onStatus(
+                        HttpStatusCode::is5xxServerError,
+                        response -> Mono.error(new RuntimeException("RESTHeart error"))
+                )
                 .bodyToMono(Void.class);
     }
+
 
     public <T> Mono<T> upsert(String collection, String id, T object) {
         Map<String, Object> document = objectMapper.convertValue(object, Map.class);

@@ -24,10 +24,8 @@ public class Tenant {
     private String domain; // Optional: "xyzbank.com"
     private String status; // active, suspended, inactive
 
-    // Tenant configuration
     private TenantConfig config;
 
-    // Contact information
     private ContactInfo contactInfo;
 
     @Builder.Default
