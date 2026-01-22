@@ -12,6 +12,7 @@ import java.util.Date;
 @Getter
 @Setter
 @Builder
+@ToString
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public class ApiResponse<T> {
     private Object message;

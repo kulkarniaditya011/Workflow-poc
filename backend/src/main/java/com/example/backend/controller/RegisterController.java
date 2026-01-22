@@ -9,6 +9,7 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 @RequestMapping("/api/register")
@@ -20,8 +21,9 @@ public class RegisterController {
 
     @PostMapping
     @AdminApi
-    public ResponseEntity<ApiResponse<String>> signup(@Valid @RequestBody SignUpRequest signUpRequest, @RequestHeader("registration-for") String resgistrationFor){
-        return ResponseEntity.status(HttpStatus.CREATED).body(authService.signup(signUpRequest, resgistrationFor));
+    @PreAuthorize("hasRole('SUPER_ADMIN') and hasAuthority('CREATE_USER')")
+    public ResponseEntity<ApiResponse<String>> signup(@Valid @RequestBody SignUpRequest signUpRequest){
+        return ResponseEntity.status(HttpStatus.CREATED).body(authService.signup(signUpRequest));
 
     }
 

@@ -19,6 +19,7 @@ import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.AuthenticationEntryPoint;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.web.access.AccessDeniedHandler;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.web.cors.CorsConfigurationSource;
 
@@ -36,6 +37,7 @@ public class SecurityConfig {
     private final UserService userService;
     private final PasswordEncoder passwordEncoder;
     private final CorsConfigurationSource corsConfigurationSource;
+    private final JwtAccessDeniedHandler JwtAccessDeniedHandler;
 
     @Bean
     public AuthenticationProvider authenticationProvider(){
@@ -52,6 +54,7 @@ public class SecurityConfig {
 
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
+
         http.cors(cors-> cors.configurationSource(corsConfigurationSource))
                 .csrf(AbstractHttpConfigurer::disable)
                 .headers(h-> h.frameOptions(HeadersConfigurer.FrameOptionsConfig::disable))
@@ -62,7 +65,9 @@ public class SecurityConfig {
                         .requestMatchers("/api/login/**").permitAll()
                         .requestMatchers("/api/register/**").permitAll()
                         .anyRequest().authenticated())
-                .exceptionHandling(e-> e.authenticationEntryPoint(jwtAuthenticationEntryPoint))
+                .exceptionHandling(e-> e.authenticationEntryPoint(jwtAuthenticationEntryPoint)
+                        .accessDeniedHandler(JwtAccessDeniedHandler)
+                )
                 .authenticationProvider(authenticationProvider())
                 .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
             return http.build();

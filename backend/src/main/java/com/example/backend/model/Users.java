@@ -27,7 +27,7 @@ import java.util.stream.Collectors;
 @NoArgsConstructor
 @Document(collection = "users")
 @JsonIgnoreProperties(ignoreUnknown = true)
-public class Users implements UserDetails {
+public class Users{
 
     @Id
     @JsonProperty("_id")
@@ -37,45 +37,6 @@ public class Users implements UserDetails {
     private String name;
     private String email;
     private String password;
-    private String roleId;
-    private List<String> privilageId;
+    private List<String> roles;
 
-    @Override
-    @JsonIgnore
-    public Collection<? extends GrantedAuthority> getAuthorities() {
-       List<GrantedAuthority> authorities = new ArrayList<>();
-       authorities.add(new SimpleGrantedAuthority(roleId));
-       privilageId.forEach(privilageId -> authorities.add(new SimpleGrantedAuthority(privilageId)));
-       return  authorities;
-    }
-
-    @Override
-    @JsonIgnore
-    public String getUsername() {
-        return email;
-    }
-
-    @Override
-    @JsonIgnore
-    public boolean isAccountNonExpired() {
-        return UserDetails.super.isAccountNonExpired();
-    }
-
-    @Override
-    @JsonIgnore
-    public boolean isAccountNonLocked() {
-        return UserDetails.super.isAccountNonLocked();
-    }
-
-    @Override
-    @JsonIgnore
-    public boolean isCredentialsNonExpired() {
-        return UserDetails.super.isCredentialsNonExpired();
-    }
-
-    @Override
-    @JsonIgnore
-    public boolean isEnabled() {
-        return UserDetails.super.isEnabled();
-    }
 }

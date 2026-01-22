@@ -4,6 +4,8 @@ import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotEmpty;
 import lombok.*;
 
+import java.util.List;
+
 @Getter
 @Setter
 @AllArgsConstructor
@@ -19,5 +21,7 @@ public class SignUpRequest {
 
     @NotEmpty(message = "password is required")
     private String password;
+
+    private List<String> roles;
 
 }

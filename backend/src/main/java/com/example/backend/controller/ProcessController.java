@@ -13,6 +13,7 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
@@ -25,8 +26,9 @@ public class ProcessController {
     @PostMapping
     @Operation(summary = "Create a Process")
     @AdminApi
+    @PreAuthorize("hasAuthority('CREATE_PROCESS')")
     public ResponseEntity<ApiResponse<String>> createProcess(@Valid @RequestBody ProcessDTO processDTO){
-        return ResponseEntity.status(HttpStatus.CREATED).body(processService.createProcess(processDTO));
+        return ResponseEntity.status(HttpStatus.OK).body(processService.createProcess(processDTO));
     }
 
     @GetMapping("/{id}")
@@ -38,6 +40,7 @@ public class ProcessController {
     @PutMapping("/{id}")
     @Operation(summary = "Update a Process using process id")
     @AdminApi
+    @PreAuthorize("hasAuthority('UPDATE_PROCESS')")
     public ResponseEntity<ApiResponse<ProcessDTO>> updateProcess(@Parameter(required = false, schema = @Schema(implementation = ProcessDTO.class))
                                                                  @RequestPart(value = "ProcessDto", required = false) String processDTO,
                                                                  @PathVariable("id") String processId){
@@ -47,8 +50,9 @@ public class ProcessController {
     @DeleteMapping("/{id}")
     @AdminApi
     @Operation(summary = "Delete a Process by process id")
+    @PreAuthorize("hasAuthority('DELETE_PROCESS')")
     public ResponseEntity<ApiResponse<String>> deleteProcess(@PathVariable("id") String processId){
-        return ResponseEntity.status(HttpStatus.NO_CONTENT).body(processService.deleteProcess(processId));
+        return ResponseEntity.status(HttpStatus.OK).body(processService.deleteProcess(processId));
     }
 
     @PostMapping("/executions/{id}")

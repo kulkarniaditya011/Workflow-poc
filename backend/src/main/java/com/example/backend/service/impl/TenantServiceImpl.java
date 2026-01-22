@@ -7,7 +7,6 @@ import com.example.backend.model.Tenant;
 import com.example.backend.repository.TenantRepository;
 import com.example.backend.response.ApiResponse;
 import com.example.backend.service.TenantService;
-import lombok.NoArgsConstructor;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 

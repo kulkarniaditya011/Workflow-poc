@@ -12,7 +12,7 @@ import java.util.Map;
 @Service
 public interface AuthenticationService {
 
-    ApiResponse<String> signup(SignUpRequest signUpRequest, String resgistrationFor);
+    ApiResponse<String> signup(SignUpRequest signUpRequest);
 
     ApiResponse<Map<String, String>> login(@Valid SignInRequest signInRequest);
 }

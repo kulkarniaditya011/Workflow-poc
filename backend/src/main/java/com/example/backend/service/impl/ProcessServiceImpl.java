@@ -3,13 +3,11 @@ package com.example.backend.service.impl;
 import com.example.backend.common.PagebleObject;
 import com.example.backend.common.ResponseUtil;
 import com.example.backend.common.ValidationUtil;
-import com.example.backend.dto.FormFieldsDTO;
-import com.example.backend.dto.FormsDTO;
 import com.example.backend.dto.ProcessDTO;
 import com.example.backend.dto.StepsDTO;
 import com.example.backend.exceptions.RestApiException;
-import com.example.backend.model.*;
 import com.example.backend.model.Process;
+import com.example.backend.model.Steps;
 import com.example.backend.repository.ProcessRepository;
 import com.example.backend.response.ApiResponse;
 import com.example.backend.service.ProcessService;
@@ -30,7 +28,6 @@ import java.util.function.Consumer;
 @Service
 @RequiredArgsConstructor
 public class ProcessServiceImpl implements ProcessService {
-    private final ProcessRepository processRepository;
     private final ValidationUtil validationUtil;
     private final PagebleObject pagebleObject;
     private final RestheartService restheartService;

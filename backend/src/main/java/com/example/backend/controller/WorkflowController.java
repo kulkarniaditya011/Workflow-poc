@@ -11,6 +11,7 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
@@ -23,6 +24,7 @@ public class WorkflowController {
 
     @PostMapping
     @AdminApi
+    @PreAuthorize("hasAuthority('CREATE_WORKFLOW')")
     public ResponseEntity<ApiResponse<String>> createWorkflow(@Valid @RequestBody CreateWorkflowDTO createWorkflowDTO) {
         return ResponseEntity.status(HttpStatus.CREATED).body(workflowService.createWorkflow(createWorkflowDTO));
     }
@@ -34,6 +36,7 @@ public class WorkflowController {
 
     @PutMapping("/{id}")
     @AdminApi
+    @PreAuthorize("hasAuthority('UPDATE_WORKFLOW')")
     public ResponseEntity<ApiResponse<String>> updateWorkflow(@Valid @RequestBody WorkflowDTO workflowDTO,
                                                               @PathVariable("id") String workflowId){
         return ResponseEntity.status(HttpStatus.OK).body(ResponseUtil.getResponseMessage("test"));
@@ -41,6 +44,7 @@ public class WorkflowController {
 
     @DeleteMapping("/{id}")
     @AdminApi
+    @PreAuthorize("hasAuthority('DELETE_WORKFLOW')")
     public ResponseEntity<ApiResponse<String>> deleteWorkflow(@PathVariable("id") String workflowId){
         return ResponseEntity.status(HttpStatus.NO_CONTENT).body(ResponseUtil.getResponseMessage("test"));
     }

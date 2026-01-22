@@ -41,7 +41,6 @@ public class FormsServiceImpl implements FormsService {
     private final PagebleObject pagebleObject;
     private final ValidationUtil validationUtil;
     private final Validator validator;
-    private final FormRepository formRepository;
     private final ObjectMapper objectMapper;
 
     @Override

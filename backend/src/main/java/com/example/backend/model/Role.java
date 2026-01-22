@@ -16,7 +16,8 @@ import java.util.List;
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
-@Document(collection = "role")
+@Document(collection = "roles")
+@ToString
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class Role {
 

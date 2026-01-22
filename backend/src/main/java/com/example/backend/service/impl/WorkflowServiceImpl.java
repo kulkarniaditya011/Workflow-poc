@@ -6,8 +6,6 @@ import com.example.backend.common.ValidationUtil;
 import com.example.backend.dto.CreateWorkflowDTO;
 import com.example.backend.exceptions.RestApiException;
 import com.example.backend.model.Workflow;
-import com.example.backend.model.WorkflowMetadata;
-import com.example.backend.repository.WorkflowRepository;
 import com.example.backend.response.ApiResponse;
 import com.example.backend.service.RestheartService;
 import com.example.backend.service.WorkflowService;
@@ -15,7 +13,6 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
-import org.springframework.web.reactive.function.client.WebClient;
 
 import java.util.Map;
 
@@ -24,7 +21,6 @@ import java.util.Map;
 @RequiredArgsConstructor
 public class WorkflowServiceImpl implements WorkflowService {
     private final ValidationUtil validationUtil;
-    private final WorkflowRepository workflowRepository;
     private final PagebleObject pagebleObject;
     private final RestheartService restheartService;
 

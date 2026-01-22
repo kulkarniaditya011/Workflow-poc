@@ -11,6 +11,7 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -26,6 +27,7 @@ public class TenantController {
     @PostMapping
     @Operation(summary = "Create a new tenant")
     @AdminApi
+    @PreAuthorize("hasAuthority('CREATE_TENANT')")
     public ResponseEntity<ApiResponse<String>> createTenant(@Valid @RequestBody TenantDTO tenantDTO) {
         return ResponseEntity.status(HttpStatus.CREATED).body(tenantService.createTenant(tenantDTO));
     }
@@ -39,6 +41,7 @@ public class TenantController {
     @PutMapping("/{id}")
     @Operation(summary = "Update an existing tenant")
     @AdminApi
+    @PreAuthorize("hasAuthority('UPDATE_TENANT')")
     public ResponseEntity<ApiResponse<String>> updateTenant(@Valid @RequestBody TenantDTO tenantDTO,
                                                             @PathVariable("id") String tenantId) {
         return ResponseEntity.status(HttpStatus.OK).body(ResponseUtil.getResponseMessage("test"));
@@ -46,6 +49,7 @@ public class TenantController {
 
     @DeleteMapping("{id}")
     @AdminApi
+    @PreAuthorize("hasAuthority('DELETE_TENANT')")
     public ResponseEntity<ApiResponse<String>> deleteTenant(@PathVariable("id") String tenantId) {
         return ResponseEntity.status(HttpStatus.NO_CONTENT).body(ResponseUtil.getResponseMessage("test"));
     }

@@ -13,6 +13,15 @@ init-mongo.js
 docker-compose.yml
 
 # ===============================
+# Swagger
+# ===============================
+swagger-admin.json
+swagger-workflow.json
+
+repo_code.md
+export_repo_md.sh
+
+# ===============================
 # OS / IDE (recommended extras)
 # ===============================
 .DS_Store

@@ -14,6 +14,7 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
@@ -27,6 +28,7 @@ public class FormsController {
     @PostMapping
     @Operation(summary = "Create a Form")
     @AdminApi
+    @PreAuthorize("hasAuthority('CREATE_FORM')")
     public ResponseEntity<ApiResponse<String>> createForm( @Valid @RequestBody CreateFormDTO formsDTO) {
         return ResponseEntity.status(HttpStatus.CREATED).body(formsService.createForms(formsDTO));
     }
@@ -41,6 +43,7 @@ public class FormsController {
     @PutMapping("/{id}")
     @Operation(summary = "Update a Form using form id")
     @AdminApi
+    @PreAuthorize("hasAuthority('UPDATE_FORM')")
     public ResponseEntity<ApiResponse<String>> updateForm(@Parameter(required = false, schema = @Schema(implementation = FormsDTO.class))
                                                               @RequestPart(value = "FormDto", required = false) String payload,
                                                               @PathVariable("id") String formId) {
@@ -50,6 +53,7 @@ public class FormsController {
     @DeleteMapping("/{id}")
     @Operation(summary = "Delete a Form by form id")
     @AdminApi
+    @PreAuthorize("hasAuthority('DELETE_FORM')")
     public ResponseEntity<ApiResponse<String>> deleteForm(@PathVariable("id") String formId) {
         return ResponseEntity.status(HttpStatus.OK).body(formsService.deleteForms(formId));
     }
