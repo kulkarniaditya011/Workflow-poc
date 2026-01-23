@@ -1,6 +1,7 @@
 package com.example.backend.utilService;
 
 import com.example.backend.model.Users;
+import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
@@ -12,12 +13,15 @@ import java.util.List;
 public class SecurityUser implements UserDetails {
     private final Users user;
     private final List<GrantedAuthority> authorities;
+    @Getter
+    private final String tenantId;
 
     public SecurityUser(Users user, List<String> authorities) {
         this.user = user;
         this.authorities = authorities.stream()
                 .map(role-> (GrantedAuthority) new SimpleGrantedAuthority(role))
                 .toList();
+        this.tenantId = user.getTenantId();
     }
 
     @Override
@@ -39,4 +43,9 @@ public class SecurityUser implements UserDetails {
     public String getUsername() {
         return user.getEmail();
     }
+
+    public List<String> getRoles(){
+        return user.getRoles();
+    }
+
 }

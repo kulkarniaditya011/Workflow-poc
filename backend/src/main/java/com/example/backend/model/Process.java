@@ -30,8 +30,10 @@ public class Process {
     private String id;
 
     @Indexed
+    private String tenantId;
+    @Indexed
     private String processId;
-    private String WorkflowId;
+    private String workflowId;
     private String processName;
     private Integer sequence;
     private String processType;

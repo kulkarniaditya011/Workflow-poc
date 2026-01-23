@@ -28,10 +28,12 @@ public class JwtService {
     public String generateToken(SecurityUser user) {
         return Jwts.builder()
                 .setSubject(user.getUsername()) // email
+                .claim("roles",user.getRoles())
                 .claim("authorities",
                         user.getAuthorities().stream()
                                 .map(GrantedAuthority::getAuthority)
                                 .toList())
+                .claim("tenantId", user.getTenantId())
                 .setIssuedAt(new Date())
                 .setExpiration(new Date(System.currentTimeMillis() + EXPIRATION_MS))
                 .signWith(getSignKey(), SignatureAlgorithm.HS256)
@@ -47,10 +49,14 @@ public class JwtService {
         return (username.equals(user.getUsername()) && !isTokenExpired(token));
     }
 
+    public String extractTenantId(String token) {
+        return extractClaim(token, claims -> claims.get("tenantId", String.class));
+    }
+
     @SuppressWarnings("unchecked")
     public List<GrantedAuthority> extractAuthorities(String token) {
-        List<String> roles = extractClaim(token, claims -> claims.get("authorities", List.class));
-        return roles.stream()
+        List<String> authorities = extractClaim(token, claims -> claims.get("authorities", List.class));
+        return authorities.stream()
                 .map(role -> (GrantedAuthority) new SimpleGrantedAuthority(role))
                 .toList();
     }
@@ -77,5 +83,12 @@ public class JwtService {
 
     private Key getSignKey() {
         return io.jsonwebtoken.security.Keys.hmacShaKeyFor(jwtSecret.getBytes());
+    }
+
+    public List<GrantedAuthority> extractRoles(String token) {
+        List<String> roles = extractClaim(token, claims -> claims.get("roles", List.class));
+        return roles.stream()
+                .map(role -> (GrantedAuthority) new SimpleGrantedAuthority("ROLE_" + role))
+                .toList();
     }
 }

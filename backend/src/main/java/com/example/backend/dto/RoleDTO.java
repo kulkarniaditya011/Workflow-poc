@@ -11,7 +11,6 @@ import java.util.List;
 @NoArgsConstructor
 @ToString
 public class RoleDTO {
-    private String id;
 
     @NotEmpty(message = "Role should have a name")
     private String name;

@@ -21,11 +21,13 @@ import java.util.List;
 public class FormsDTO {
 
     private String id;
-    @NotEmpty(message = "Tenant id is required")
+
     private String tenantId;
 
     @NotEmpty(message = "form-id cannot be null")
     private String formId;
+
+
 
     private String name;
 

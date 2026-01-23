@@ -17,6 +17,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
+
 @RestController
 @RequestMapping("/api/forms")
 @RequiredArgsConstructor
@@ -35,6 +37,7 @@ public class FormsController {
 
     @GetMapping("/{id}")
     @Operation(summary = "Get a form by form id")
+    @PreAuthorize("hasAuthority('READ_FORM')")
     public ResponseEntity<ApiResponse<FormsDTO>> getFormByFormId(@PathVariable("id") String formId) {
         return ResponseEntity.status(HttpStatus.OK).body(formsService.getFormsByFormId(formId));
 
@@ -56,6 +59,13 @@ public class FormsController {
     @PreAuthorize("hasAuthority('DELETE_FORM')")
     public ResponseEntity<ApiResponse<String>> deleteForm(@PathVariable("id") String formId) {
         return ResponseEntity.status(HttpStatus.OK).body(formsService.deleteForms(formId));
+    }
+
+    @GetMapping
+    @Operation(summary = "Get all Forms")
+    @PreAuthorize("hasAuthority('READ_FORM')")
+    public ResponseEntity<ApiResponse<List<FormsDTO>>> getAllForms() {
+        return ResponseEntity.status(HttpStatus.OK).body(formsService.getAllForms());
     }
 
 }

@@ -30,6 +30,7 @@ public class WorkflowController {
     }
 
     @GetMapping
+    @PreAuthorize("hasAuthority('READ_WORKFLOW')")
     public ResponseEntity<ApiResponse<String>> getWorkflows(){
         return ResponseEntity.status(HttpStatus.OK).body(ResponseUtil.getResponseMessage("test"));
     }

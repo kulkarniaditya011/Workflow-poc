@@ -21,7 +21,7 @@ public class RegisterController {
 
     @PostMapping
     @AdminApi
-    @PreAuthorize("hasRole('SUPER_ADMIN') and hasAuthority('CREATE_USER')")
+    @PreAuthorize("hasAuthority('CREATE_USER')")
     public ResponseEntity<ApiResponse<String>> signup(@Valid @RequestBody SignUpRequest signUpRequest){
         return ResponseEntity.status(HttpStatus.CREATED).body(authService.signup(signUpRequest));
 

@@ -33,6 +33,7 @@ public class ProcessController {
 
     @GetMapping("/{id}")
     @Operation(summary = "get process by process id")
+    @PreAuthorize("hasAuthority('READ_PROCESS')")
     public ResponseEntity<ApiResponse<ProcessDTO>> getProcess(@PathVariable("id") String processId){
         return ResponseEntity.status(HttpStatus.FOUND).body(ResponseUtil.getResponseMessage("test"));
     }
@@ -63,18 +64,21 @@ public class ProcessController {
 
     @GetMapping("next/{id}")
     @Operation(summary = "Get Next Process by current process id")
+    @PreAuthorize("hasAuthority('READ_PROCESS')")
     public ResponseEntity<ApiResponse<String>> getNextProcess(@PathVariable("id") String processId){
         return ResponseEntity.status(HttpStatus.OK).body(ResponseUtil.getResponseMessage("test"));
     }
 
     @GetMapping("/status/{id}" )
     @Operation(summary = "Get Process Status by process id")
+    @PreAuthorize("hasAuthority('READ_PROCESS')")
     public ResponseEntity<ApiResponse<String>> getProcessStatus(@PathVariable("id") String processId) {
         return ResponseEntity.status(HttpStatus.OK).body(ResponseUtil.getResponseMessage("test"));
     }
 
     @GetMapping("/workflow/{id}")
     @Operation(summary = "Get Process by workflow id")
+    @PreAuthorize("hasAuthority('READ_PROCESS')")
     public ResponseEntity<ApiResponse<ProcessDTO>> getProcessByWorkflowId(@PathVariable("id") String workflowId){
         return ResponseEntity.status(HttpStatus.OK).body(processService.getProcessByWorkflow(workflowId));
     }

@@ -1,6 +1,7 @@
 package com.example.backend.exceptions;
 
 import com.example.backend.response.ApiResponse;
+import com.fasterxml.jackson.databind.exc.MismatchedInputException;
 import jakarta.validation.ConstraintViolation;
 import jakarta.validation.ConstraintViolationException;
 import org.springframework.http.HttpStatus;
@@ -58,12 +59,43 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler(HttpMessageNotReadableException.class)
     public ResponseEntity<ApiResponse<Object>> handleHttpMessageNotReadable(HttpMessageNotReadableException exception, WebRequest request) {
-        return new ResponseEntity<>(ApiResponse.builder().message(exception.getMessage())
-                .errors(request.getDescription(false))
-                .timestamp(new Date())
-                .build(), HttpStatus.BAD_REQUEST
+        Throwable rootCause = exception.getMostSpecificCause();
+
+        if (rootCause instanceof MismatchedInputException mismatched) {
+            return new ResponseEntity<>(
+                    ApiResponse.builder()
+                            .message("Invalid JSON structure or data type")
+                            .errors(mismatched.getPathReference())
+                            .timestamp(new Date())
+                            .build(),
+                    HttpStatus.BAD_REQUEST
+            );
+        }
+        return new ResponseEntity<>(
+                ApiResponse.builder()
+                        .message("Malformed JSON request")
+                        .errors(exception.getMessage())
+                        .timestamp(new Date())
+                        .build(),
+                HttpStatus.BAD_REQUEST
         );
     }
+
+    @ExceptionHandler(IllegalArgumentException.class)
+    public ResponseEntity<ApiResponse<Object>> handleIllegalArgumentException(
+            IllegalArgumentException exception,
+            WebRequest request) {
+
+        return new ResponseEntity<>(
+                ApiResponse.builder()
+                        .message(exception.getMessage())
+                        .errors("Invalid request argument")
+                        .timestamp(new Date())
+                        .build(),
+                HttpStatus.BAD_REQUEST
+        );
+    }
+
 
 
 }

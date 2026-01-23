@@ -38,7 +38,6 @@ public class UserService {
 
             // Fetch roles
             List<Role> roles = roleRepository.findByNameIn(user.getRoles());
-            log.error("error: {}",roleRepository.findByNameIn(user.getRoles()).toString());
             log.info("Roles loaded from DB: {}", roles.toString());
             if (roles.isEmpty()) {
                 throw new RestApiException("Role not found", HttpStatus.BAD_REQUEST);
@@ -49,7 +48,6 @@ public class UserService {
                     roles.stream()
                             .flatMap(role -> {
                                 Set<String> auths = new HashSet<>();
-                                auths.add("ROLE_" + role.getName());
                                 auths.addAll(role.getAuthorities());
                                 return auths.stream();
                             })

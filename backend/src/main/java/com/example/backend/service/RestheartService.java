@@ -4,16 +4,13 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatusCode;
 import org.springframework.stereotype.Service;
 import org.springframework.web.reactive.function.client.WebClient;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
-import java.net.URI;
-import java.net.URLEncoder;
-import java.nio.charset.StandardCharsets;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 @Slf4j
 @Service
@@ -29,34 +26,34 @@ public class RestheartService {
     }
 
     public <T> Mono<T> create(String collection, T object, Class<T> entityClass) {
+
         Map<String, Object> document = objectMapper.convertValue(object, Map.class);
-//        log.info("Getting the form object from form Service:{}", document.toString());
+
+        // RESTHeart-managed fields — must not be sent
+        document.remove("_id");
         document.remove("_etag");
         document.remove("_rev");
 
         return restHeartWebClient
                 .post()
-                .uri(uriBuilder ->
-                        uriBuilder
-                                .path("workflow_platform/{collection}")
-                                .build(collection)
-                )
+                .uri("workflow_platform/{collection}", collection)
                 .bodyValue(document)
-                .exchangeToMono(response -> {
-                    if (response.statusCode().is2xxSuccessful()) {
-                        return response.bodyToMono(Map.class)
-                                .doOnNext(body -> log.info("RESTHeart created: {}", body))
-                                .thenReturn(object);
-                    } else {
-                        return response.bodyToMono(String.class)
+                .retrieve()
+                .onStatus(
+                        status -> !status.is2xxSuccessful(),
+                        response -> response.bodyToMono(String.class)
                                 .flatMap(err -> {
-                                    log.error("RESTHeart error {} → {}", response.statusCode(), err);
+                                    log.error("RESTHeart create failed [{}]: {}", response.statusCode(), err);
                                     return Mono.error(new RuntimeException("RESTHeart insert failed"));
-                                });
-                    }
+                                })
+                )
+                .bodyToMono(Map.class)
+                .map(createdDoc -> {
+                    log.info("RESTHeart created document: {}", createdDoc);
+                    return objectMapper.convertValue(createdDoc, entityClass);
                 });
-
     }
+
 
     public Mono<Map> findById(String collection, String id){
         return restHeartWebClient
@@ -86,16 +83,26 @@ public class RestheartService {
                 .bodyToFlux(Map.class);
     }
 
-    // In RestHeartService
-    public Flux<Map> getWithFilter(String collection, Map<String, Object> filterCriteria) {
+
+    public Flux<Map> getWithFilter(String collection, Map<String, Object> equalsFilters) {
         try {
-            String filterJson = objectMapper.writeValueAsString(filterCriteria);
-//            log.info("Filtering form object from form Service: {}", filterJson);
+            Map<String, Object> mongoFilter =
+                    equalsFilters.entrySet()
+                            .stream()
+                            .collect(Collectors.toMap(
+                                    Map.Entry::getKey,
+                                    e -> Map.of("$eq", e.getValue())
+                            ));
+
+            String filterJson = objectMapper.writeValueAsString(mongoFilter);
 
             return restHeartWebClient
                     .get()
                     .uri("workflow_platform/{collection}?filter={filter}",
-                            Map.of("collection", collection, "filter", filterJson))
+                            Map.of(
+                                    "collection", collection,
+                                    "filter", filterJson
+                            ))
                     .retrieve()
                     .bodyToFlux(Map.class);
 
@@ -118,41 +125,63 @@ public class RestheartService {
     public Mono<Void> delete(String collection, String documentId) {
         return restHeartWebClient
                 .delete()
-                .uri(uriBuilder -> uriBuilder
-                        .path("/workflow_platform/{collection}/{id}")
-                        .build(collection, documentId))
-                .retrieve()
-                .onStatus(
-                        HttpStatusCode::is4xxClientError,
-                        response -> Mono.error(new RuntimeException("Document not found"))
+                .uri(uriBuilder ->
+                        uriBuilder
+                                .path("workflow_platform/{collection}/{id}")
+                                .build(collection, documentId)
                 )
-                .onStatus(
-                        HttpStatusCode::is5xxServerError,
-                        response -> Mono.error(new RuntimeException("RESTHeart error"))
-                )
-                .bodyToMono(Void.class);
+                .exchangeToMono(response -> {
+                    if (response.statusCode().is2xxSuccessful()) {
+                        // 204 on success
+                        return Mono.empty();
+                    }
+                    if (response.statusCode().value() == 404) {
+                        return Mono.error(new RuntimeException(
+                                "Document not found with id: " + documentId
+                        ));
+                    }if (response.statusCode().value() == 409) {
+                        return Mono.error(new RuntimeException(
+                                "Conflict deleting document (possible revision mismatch)"
+                        ));
+                    }
+                    return response.bodyToMono(String.class)
+                            .flatMap(err -> Mono.error(new RuntimeException(
+                                    "RESTHeart delete failed: " + err
+                            )));
+                });
     }
 
 
-    public <T> Mono<T> upsert(String collection, String id, T object) {
+    public <T> Mono<T> upsert(
+            String collection,
+            String id,
+            T object,
+            Class<T> entityClass
+    ) {
         Map<String, Object> document = objectMapper.convertValue(object, Map.class);
 
-        // RESTHeart must control these
+        // RESTHeart-managed fields — never send
         document.remove("_id");
         document.remove("_etag");
         document.remove("_rev");
 
         return restHeartWebClient
                 .put()
-                .uri(uriBuilder ->
-                        uriBuilder
-                                .path("/workflow_platform/{collection}/{id}")
-                                .build(collection, id)
-                )
+                .uri("workflow_platform/{collection}/{id}", collection, id)
                 .bodyValue(document)
                 .retrieve()
-                .toBodilessEntity()
-                .thenReturn(object);
+                .onStatus(
+                        status -> !status.is2xxSuccessful(),
+                        response -> response.bodyToMono(String.class)
+                                .flatMap(err -> Mono.error(
+                                        new RuntimeException("RESTHeart upsert failed: " + err)
+                                ))
+                )
+                .bodyToMono(Map.class)
+                .map(updatedDoc -> {
+                    log.info("RESTHeart upserted document [{}]: {}", id, updatedDoc);
+                    return objectMapper.convertValue(updatedDoc, entityClass);
+                });
     }
 
 }

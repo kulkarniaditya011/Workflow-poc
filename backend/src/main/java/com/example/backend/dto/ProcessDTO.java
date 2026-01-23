@@ -1,10 +1,7 @@
 package com.example.backend.dto;
 
-import com.example.backend.model.Steps;
 import jakarta.validation.Valid;
-import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotEmpty;
-import jakarta.validation.constraints.NotNull;
 import lombok.*;
 
 import java.util.List;
@@ -20,7 +17,7 @@ public class ProcessDTO {
     private String processId;
 
     @NotEmpty(message = "Workflow id cannot be empty")
-    private String WorkflowId;
+    private String workflowId;
 
     @NotEmpty(message = "A process should have a name")
     private String processName;

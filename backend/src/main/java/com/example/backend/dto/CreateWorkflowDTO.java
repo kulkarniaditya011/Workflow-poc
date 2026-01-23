@@ -15,8 +15,6 @@ import java.util.List;
 @NoArgsConstructor
 public class CreateWorkflowDTO {
 
-    @NotBlank(message = "Tenant id cannot be blank")
-    private String tenantId;
 
     @NotBlank(message = "Workflow id cannot be blank")
     private String workflowId;

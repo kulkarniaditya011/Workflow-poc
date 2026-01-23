@@ -27,7 +27,7 @@ public class AdminRoleController {
     @PostMapping
     @Operation(summary = "Create a role")
     @AdminApi
-    @PreAuthorize("hasRole('SUPER_ADMIN') and hasAuthority('CREATE_ROLE')")
+    @PreAuthorize("hasAuthority('CREATE_ROLE')")
     public ResponseEntity<ApiResponse<String>> createRole(@Valid @RequestBody RoleDTO role) {
         return ResponseEntity.status(HttpStatus.CREATED).body(roleService.createRole(role));
     }

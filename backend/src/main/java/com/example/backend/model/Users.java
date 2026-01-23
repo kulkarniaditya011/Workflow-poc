@@ -38,5 +38,6 @@ public class Users{
     private String email;
     private String password;
     private List<String> roles;
+    private String tenantId;
 
 }
