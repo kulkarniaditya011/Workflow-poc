@@ -12,6 +12,7 @@ import com.example.backend.service.AuthenticationService;
 import com.example.backend.service.RestheartService;
 import com.example.backend.utilService.JwtService;
 import com.example.backend.utilService.SecurityUser;
+import com.example.backend.utilService.SecurityUtils;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
@@ -35,6 +36,8 @@ public class AuthenticationServiceImpl implements AuthenticationService {
     private final PagebleObject pagebleObject;
     private final AuthenticationManager authenticationManager;
     private final JwtService jwtService;
+    private final SecurityUtils securityUtils;
+
 
     @Override
     public ApiResponse<String> signup(SignUpRequest signUpRequest) {
@@ -66,7 +69,7 @@ public class AuthenticationServiceImpl implements AuthenticationService {
 
     @Override
     public ApiResponse<Map<String, String>> login(SignInRequest signInRequest) {
-        Authentication authentication;
+       Authentication authentication;
 
         try {
             authentication = authenticationManager.authenticate(
@@ -92,6 +95,7 @@ public class AuthenticationServiceImpl implements AuthenticationService {
     }
 
     private Users buildUser(SignUpRequest signUpRequest) {
+
         if (signUpRequest.getRoles().isEmpty()){
             throw new RestApiException("Roles cannot be empty", HttpStatus.BAD_REQUEST);
         }
@@ -100,6 +104,7 @@ public class AuthenticationServiceImpl implements AuthenticationService {
                 .email(signUpRequest.getEmail())
                 .password(passwordEncoder.encode(signUpRequest.getPassword()))
                 .roles(signUpRequest.getRoles())
+                .tenantId(SecurityUtils.getTenantId())
                 .build();
     }
 

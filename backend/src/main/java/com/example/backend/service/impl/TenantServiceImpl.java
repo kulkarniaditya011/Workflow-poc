@@ -21,6 +21,7 @@ public class TenantServiceImpl implements TenantService {
 
     @Override
     public ApiResponse<String> createTenant(TenantDTO tenantDTO) {
+
         Tenant tenant = pagebleObject.map(tenantDTO, Tenant.class);
         tenant.setId(null);
         tenantRepository.save(tenant);

@@ -27,7 +27,7 @@ public class GlobalExceptionHandler {
         return new ResponseEntity<>(ApiResponse.builder().message(exception.getMessage())
                 .errors(request.getDescription(false))
                 .timestamp(new Date())
-                .build(), HttpStatus.BAD_REQUEST);
+                .build(), exception.getHttpStatus());
     }
 
     @ExceptionHandler(ConstraintViolationException.class)

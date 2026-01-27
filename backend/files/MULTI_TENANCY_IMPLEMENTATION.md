@@ -123,7 +123,7 @@ filter.put("formId", formId);
 ## 📋 What Still Needs to Be Done
 
 ### Phase 2: Additional Services Refactoring
-- [ ] **RoleServiceImpl** - Add tenant filtering to role queries
+- [ ] **RoleServiceImpl** - Add tenant filtering to roles queries
 - [ ] **AuditLogServiceImpl** (if exists) - Add tenant filtering
 - [ ] **WorkflowInstanceServiceImpl** (if exists) - Add tenant filtering
 - [ ] **AuthenticationServiceImpl** - Ensure signup/login only work within tenant scope

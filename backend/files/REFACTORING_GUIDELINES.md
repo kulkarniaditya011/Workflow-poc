@@ -119,7 +119,7 @@ public class CreateFormDTO {
 ```java
 public ApiResponse<String> createRole(RoleDTO roleDTO) {
     Map<String, Object> filter = Map.of("name", roleDTO.getName());
-    // Checks if role with same name exists globally (correct for shared roles)
+    // Checks if roles with same name exists globally (correct for shared roles)
 }
 ```
 

@@ -592,7 +592,7 @@ Admin only - Lists all tenants
 
 #### POST /api/admin/roles
 ```
-Admin only - Creates new role
+Admin only - Creates new roles
 ```
 
 ---

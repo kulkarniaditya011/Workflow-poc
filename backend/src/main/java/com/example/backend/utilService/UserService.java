@@ -1,7 +1,7 @@
 package com.example.backend.utilService;
 
 import com.example.backend.exceptions.RestApiException;
-import com.example.backend.model.Role;
+import com.example.backend.model.Roles;
 import com.example.backend.model.Users;
 import com.example.backend.repository.RoleRepository;
 import com.example.backend.repository.UserRepository;
@@ -37,7 +37,7 @@ public class UserService {
             log.info("User loaded from DB: {}", user.toString());
 
             // Fetch roles
-            List<Role> roles = roleRepository.findByNameIn(user.getRoles());
+            List<Roles> roles = roleRepository.findByNameIn(user.getRoles());
             log.info("Roles loaded from DB: {}", roles.toString());
             if (roles.isEmpty()) {
                 throw new RestApiException("Role not found", HttpStatus.BAD_REQUEST);

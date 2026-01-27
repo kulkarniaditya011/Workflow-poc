@@ -5,7 +5,7 @@ import com.example.backend.common.ResponseUtil;
 import com.example.backend.common.ValidationUtil;
 import com.example.backend.dto.RoleDTO;
 import com.example.backend.exceptions.RestApiException;
-import com.example.backend.model.Role;
+import com.example.backend.model.Roles;
 import com.example.backend.response.ApiResponse;
 import com.example.backend.service.RestheartService;
 import com.example.backend.service.RoleService;
@@ -14,7 +14,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 
-import java.util.HashMap;
 import java.util.Map;
 
 @Slf4j
@@ -31,18 +30,18 @@ public class RoleServiceImpl implements RoleService {
         validationUtil.validate(roleDTO);
         Map<String, Object> filter = Map.of("name", roleDTO.getName());
         if (restheartService.getWithFilter("roles",  filter)
-                .map(obj-> pagebleObject.convertValue(obj, Role.class))
+                .map(obj-> pagebleObject.convertValue(obj, Roles.class))
                 .blockFirst()
                 != null) {
             throw new RestApiException(
-                    String.format("Role with name %s already exsists", roleDTO.getName()),
+                    String.format("Role with name %s already exists", roleDTO.getName()),
                     HttpStatus.BAD_REQUEST);
         }
-        Role role= Role.builder()
+        Roles roles = Roles.builder()
                 .name(roleDTO.getName())
                 .authorities(roleDTO.getAuthorities())
                 .build();
-        RoleDTO roleDTOs = pagebleObject.map(restheartService.create("roles", role, Role.class).block(), RoleDTO.class);
+        RoleDTO roleDTOs = pagebleObject.map(restheartService.create("roles", roles, Roles.class).block(), RoleDTO.class);
         log.info("Role created: {}", roleDTOs.toString());
         return ResponseUtil.getResponseMessage("Role: " +roleDTOs.getName()+ " has been created");
     }

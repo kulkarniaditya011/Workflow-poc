@@ -9,23 +9,30 @@ import lombok.*;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
 
-import java.util.List;
-
-@Getter
 @Setter
-@Builder
-@AllArgsConstructor
+@Getter
 @NoArgsConstructor
-@Document(collection = "roles")
+@AllArgsConstructor
+@Builder
 @ToString
+@Document(collection = "departments")
 @JsonIgnoreProperties(ignoreUnknown = true)
-public class Role {
+public class Departments {
 
     @Id
     @JsonProperty("_id")
     @JsonDeserialize(using = ObjectIdDeserializer.class)
     @JsonInclude(JsonInclude.Include.NON_NULL)
     private String id;
+
+    private String tenantId;
+
+    private String departmentId;
+
     private String name;
-    private List<String> authorities;
+
+    private String description;
+
+    private String managerId;
+
 }

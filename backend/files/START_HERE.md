@@ -21,7 +21,7 @@
 
 ### **DOCUMENTATION_INDEX.md** - Find What You Need
 - Quick links by topic
-- Quick links by role (Developer, Architect, Security, QA, PM)
+- Quick links by roles (Developer, Architect, Security, QA, PM)
 - Find information by question
 - Learning progression paths
 - When to use each document

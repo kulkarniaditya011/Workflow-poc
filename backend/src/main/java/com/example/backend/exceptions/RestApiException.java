@@ -1,10 +1,12 @@
 package com.example.backend.exceptions;
 
+import lombok.Getter;
 import org.springframework.http.HttpStatus;
 
 import java.util.ArrayList;
 import java.util.List;
 
+@Getter
 public class RestApiException extends RuntimeException {
     private final HttpStatus httpStatus;
     private final List<String> errorMessage=new ArrayList<>();

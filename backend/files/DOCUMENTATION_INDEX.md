@@ -39,7 +39,7 @@ You now have **9 comprehensive documentation files** that explain your entire co
 ---
 
 ### 2. **README_DOCUMENTATION.md**
-**Best For**: Navigation and finding the right document for your role
+**Best For**: Navigation and finding the right document for your roles
 
 **Contains**:
 - Role-based guide (Developer, Architect, Security, QA, PM)
@@ -413,7 +413,7 @@ Level 5: Advanced Topics
 
 **"Where is [X] file"** → Go to CODEBASE_OVERVIEW.md "Directory Structure"
 
-**"What is my role"** → Go to README_DOCUMENTATION.md "By Role"
+**"What is my roles"** → Go to README_DOCUMENTATION.md "By Role"
 
 ---
 

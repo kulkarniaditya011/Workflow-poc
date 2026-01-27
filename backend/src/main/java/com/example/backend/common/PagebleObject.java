@@ -1,12 +1,14 @@
 package com.example.backend.common;
 
 
+import com.example.backend.exceptions.RestApiException;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.AllArgsConstructor;
 import org.modelmapper.ModelMapper;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Component;
 
 import java.util.List;
@@ -34,7 +36,7 @@ public class PagebleObject {
         try {
             return objectMapper.readValue(content, targetClass);
         } catch (JsonProcessingException e) {
-            return null;
+            throw new RestApiException("Invalid JSON format", HttpStatus.BAD_REQUEST);
         }
     }
 
@@ -42,7 +44,7 @@ public class PagebleObject {
         try {
             return objectMapper.readTree(jsonString);
         } catch (Exception e) {
-            return null;
+            throw new RestApiException("Invalid JSON format", HttpStatus.BAD_REQUEST);
         }
     }
 

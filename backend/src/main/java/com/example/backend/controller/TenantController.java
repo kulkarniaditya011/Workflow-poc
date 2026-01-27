@@ -34,6 +34,7 @@ public class TenantController {
 
     @GetMapping
     @Operation(summary = "Get all tenants")
+    @PreAuthorize("hasAuthority('READ_TENANTS')")
     public ResponseEntity<ApiResponse<List<TenantDTO>>> getTenants() {
         return ResponseEntity.status(HttpStatus.OK).body(tenantService.getAllTenants());
     }
