@@ -10,6 +10,9 @@ import java.util.List;
 @NoArgsConstructor
 @Builder
 public class Assignment {
+
+
+
     private List<String> roles;
     private List<String> users;
 }
