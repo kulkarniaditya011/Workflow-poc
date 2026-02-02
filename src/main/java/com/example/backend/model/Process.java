@@ -1,0 +1,50 @@
+package com.example.backend.model;
+
+import com.example.backend.common.ObjectIdDeserializer;
+import com.example.backend.enums.ProcessExecutionPattern;
+import com.example.backend.enums.ProcessStatus;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
+import lombok.*;
+import org.springframework.data.annotation.Id;
+import org.springframework.data.mongodb.core.index.Indexed;
+import org.springframework.data.mongodb.core.mapping.Document;
+
+import java.util.List;
+
+@Setter
+@Getter
+@AllArgsConstructor
+@NoArgsConstructor
+@Document("process")
+@Builder
+@ToString
+@JsonIgnoreProperties(ignoreUnknown = true)
+public class Process {
+
+    @Id
+    @JsonProperty("_id")
+    @JsonDeserialize(using = ObjectIdDeserializer.class)
+    @JsonInclude(JsonInclude.Include.NON_NULL)
+    private String id;
+
+    @Indexed
+    private String tenantId;
+    @Indexed
+    private String processId;
+    private String name;
+    private String description;
+    private Integer version; // start with 1
+    private ProcessStatus status; // DRAFT, ACTIVE, DEPRECATED
+    private String departmentId;
+    @Builder.Default
+    private Boolean latest = true;
+    private ProcessExecutionPattern executionPattern; // SEQUENTIAL, PARALLEL
+    private Assignment assignment;
+    private List<StepDefinition> steps;
+
+
+}
+

@@ -1,34 +1,33 @@
-# ===============================
-# MongoDB (local / docker data)
-# ===============================
-mongo-data/
-mongo-config/
-
-# MongoDB init script (contains creds / setup)
-init-mongo.js
-
-# ===============================
-# Docker
-# ===============================
-docker-compose.yml
-
-# ===============================
-# Swagger
-# ===============================
-swagger-admin.json
-swagger-workflow.json
-
-repo_code.md
-export_repo_md.sh
-
-# ===============================
-# OS / IDE (recommended extras)
-# ===============================
-.DS_Store
-*.log
-
-# IntelliJ / IDE
-.idea/
-*.iml
-out/
+HELP.md
 target/
+.mvn/wrapper/maven-wrapper.jar
+!**/src/main/**/target/
+!**/src/test/**/target/
+
+### STS ###
+.apt_generated
+.classpath
+.factorypath
+.project
+.settings
+.springBeans
+.sts4-cache
+
+### IntelliJ IDEA ###
+.idea
+*.iws
+*.iml
+*.ipr
+
+### NetBeans ###
+/nbproject/private/
+/nbbuild/
+/dist/
+/nbdist/
+/.nb-gradle/
+build/
+!**/src/main/**/build/
+!**/src/test/**/build/
+
+### VS Code ###
+.vscode/
