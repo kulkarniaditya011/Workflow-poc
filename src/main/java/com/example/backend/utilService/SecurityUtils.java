@@ -8,11 +8,9 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Component;
 
 /**
- * Utility class for extracting tenant and user information from the security context.
- *
+ * Utility class for extracting tenant and user information from the security context.*
  * This is the single source of truth for tenant resolution in the application.
  * TenantId is extracted from the JWT token (via SecurityUser) and NOT from request body or ThreadLocal.
- *
  * This ensures:
  * - Request-scoped tenant isolation
  * - Thread-safe operation in reactive environments
@@ -24,9 +22,7 @@ public class SecurityUtils {
 
     /**
      * Retrieves the tenant ID from the authenticated user's security context.
-     *
      * The tenant ID comes from the JWT token, which was set during authentication in JwtAuthenticationFilter.
-     *
      * @return the tenant ID of the current authenticated user
      * @throws RestApiException if user is not authenticated or tenant ID is missing
      */
@@ -43,7 +39,7 @@ public class SecurityUtils {
 
         Object principal = authentication.getPrincipal();
 
-        if (!(principal instanceof SecurityUser)) {
+        if (!(principal instanceof SecurityUser securityUser)) {
             log.warn("Principal is not a SecurityUser: {}", principal.getClass().getName());
             throw new RestApiException(
                 "Invalid authentication principal",
@@ -51,7 +47,6 @@ public class SecurityUtils {
             );
         }
 
-        SecurityUser securityUser = (SecurityUser) principal;
         String tenantId = securityUser.getTenantId();
 
         if (tenantId == null || tenantId.isBlank()) {
@@ -67,7 +62,6 @@ public class SecurityUtils {
 
     /**
      * Retrieves the username (email) of the authenticated user.
-     *
      * @return the email of the current authenticated user
      * @throws RestApiException if user is not authenticated
      */
@@ -86,7 +80,6 @@ public class SecurityUtils {
 
     /**
      * Retrieves the SecurityUser object from the security context.
-     *
      * @return the SecurityUser principal
      * @throws RestApiException if user is not authenticated or principal is invalid
      */

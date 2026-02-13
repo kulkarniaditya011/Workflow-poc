@@ -1,5 +1,6 @@
 package com.example.backend.dto;
 
+import com.example.backend.enums.ResourceStatus;
 import com.example.backend.model.WorkflowMetadata;
 import jakarta.validation.constraints.NotBlank;
 import lombok.AllArgsConstructor;
@@ -15,14 +16,13 @@ import java.util.List;
 @NoArgsConstructor
 public class CreateWorkflowDTO {
 
-
     @NotBlank(message = "Workflow id cannot be blank")
     private String workflowId;
     private String name;
     private String description;
     private List<String> processId;
     private String departmentId;
+    private ResourceStatus status;
     private WorkflowMetadata workflowMetadata;
-    private String status= "active";
 
 }

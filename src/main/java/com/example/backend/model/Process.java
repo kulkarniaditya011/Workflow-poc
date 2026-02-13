@@ -2,7 +2,7 @@ package com.example.backend.model;
 
 import com.example.backend.common.ObjectIdDeserializer;
 import com.example.backend.enums.ProcessExecutionPattern;
-import com.example.backend.enums.ProcessStatus;
+import com.example.backend.enums.ResourceStatus;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
@@ -36,14 +36,13 @@ public class Process {
     private String processId;
     private String name;
     private String description;
-    private Integer version; // start with 1
-    private ProcessStatus status; // DRAFT, ACTIVE, DEPRECATED
+    private ResourceStatus status; //     ACTIVE, DEPRECATED
     private String departmentId;
-    @Builder.Default
-    private Boolean latest = true;
     private ProcessExecutionPattern executionPattern; // SEQUENTIAL, PARALLEL
     private Assignment assignment;
+    private ApprovalMetadata approval;
     private List<StepDefinition> steps;
+    private String createdBy;
 
 
 }

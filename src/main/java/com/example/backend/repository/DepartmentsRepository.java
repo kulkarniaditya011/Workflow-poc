@@ -1,6 +1,8 @@
 package com.example.backend.repository;
 
 import com.example.backend.model.Departments;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.mongodb.repository.MongoRepository;
 import org.springframework.stereotype.Repository;
 
@@ -12,6 +14,6 @@ public interface DepartmentsRepository extends MongoRepository<Departments, Stri
 
     Optional<Departments> findByTenantIdAndDepartmentId(String tenantId, String departmentId);
 
-    List<Departments> findByTenantId(String tenantId);
+    Page<Departments> findByTenantId(String tenantId, Pageable pageable);
 
 }

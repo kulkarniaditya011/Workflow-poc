@@ -1,6 +1,7 @@
 package com.example.backend.model;
 
 import com.example.backend.common.ObjectIdDeserializer;
+import com.example.backend.enums.ResourceStatus;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
@@ -30,8 +31,9 @@ public class Forms {
     private String formId;
     private String name;
     private String description;
-    private String departmentId;
+    private List<String> departmentId;
     private List<FormField> fields;
-    private String status;
+    private ResourceStatus status;
+    private ApprovalMetadata approval;
     private FormMetadata metadata;
 }

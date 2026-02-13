@@ -11,4 +11,5 @@ public enum ProcessStatus {
 
     @JsonProperty(value = "DEPRECATED", access = JsonProperty.Access.READ_WRITE)
     DEPRECATED
+
 }

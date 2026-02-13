@@ -15,11 +15,12 @@ import com.example.backend.service.DepartmentsService;
 import com.example.backend.utilService.SecurityUtils;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
-
-import java.util.List;
-import java.util.stream.Collectors;
 
 @Service
 @Slf4j
@@ -43,16 +44,21 @@ public class DepartmentServiceImpl implements DepartmentsService {
     }
 
     @Override
-    public ApiResponse<List<DepartmentsDTO>> getAllDepartments() {
+    public ApiResponse<Page<DepartmentsDTO>> getAllDepartments(int page, int size, String sortBy, String direction) {
+        Sort sort= direction.equalsIgnoreCase("desc")
+                ? Sort.by(sortBy).descending()
+                : Sort.by(sortBy).ascending();
+        Pageable pageable = PageRequest.of(page, size, sort);
+
         String tenantId = SecurityUtils.getTenantId();
-        List<Departments> departments= departmentsRepository.findByTenantId(tenantId);
+
+        Page<DepartmentsDTO> departments= departmentsRepository.findByTenantId(tenantId,pageable)
+                .map(dept-> pagebleObject.map(dept, DepartmentsDTO.class));
         if(departments.isEmpty()){
             return ResponseUtil.getResponseMessage("No departments found");
         }
-        List<DepartmentsDTO> departmentsDTOS= departments.stream()
-                .map(obj-> pagebleObject.map(obj, DepartmentsDTO.class))
-                .collect(Collectors.toList());
-        return ResponseUtil.getResponse(departmentsDTOS, "Departments fetched successfully");
+
+        return ResponseUtil.getResponse(departments, "Departments fetched successfully");
     }
 
     @Override
@@ -74,7 +80,7 @@ public class DepartmentServiceImpl implements DepartmentsService {
 
         departments.setManagerId(managerId);
         departmentsRepository.save(departments);
-        return ResponseUtil.getResponseMessage("Manager succesfully Added");
+        return ResponseUtil.getResponseMessage("Manager successfully Added");
     }
 
 

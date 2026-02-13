@@ -4,12 +4,17 @@ import com.example.backend.common.PagebleObject;
 import com.example.backend.common.ResponseUtil;
 import com.example.backend.common.ValidationUtil;
 import com.example.backend.dto.RequestTenantDTO;
+import com.example.backend.dto.ResponseTenantDTO;
 import com.example.backend.exceptions.RestApiException;
 import com.example.backend.model.Tenant;
 import com.example.backend.repository.TenantRepository;
 import com.example.backend.response.ApiResponse;
 import com.example.backend.service.TenantService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 
@@ -32,13 +37,18 @@ public class TenantServiceImpl implements TenantService {
     }
 
     @Override
-    public ApiResponse<List<RequestTenantDTO>> getAllTenants() {
-        List<Tenant> tenants = tenantRepository.findAll();
+    public ApiResponse<Page<ResponseTenantDTO>> getAllTenants(int page, int size, String sortBy, String direction) {
+        Sort sort = direction.equalsIgnoreCase("desc")
+                ? Sort.by(sortBy).descending()
+                : Sort.by(sortBy).ascending();
+        Pageable pageable= PageRequest.of(page, size, sort);
+
+        Page<ResponseTenantDTO> tenants = tenantRepository.findAll(pageable)
+                .map(tenant-> pagebleObject.map(tenant, ResponseTenantDTO.class));
         if(tenants.isEmpty()) {
             throw new RestApiException("Tenants not found", HttpStatus.NOT_FOUND);
         }
-        List<RequestTenantDTO> requestTenantDTOS = pagebleObject.mapList(tenants, RequestTenantDTO.class);
-        return ResponseUtil.getResponse(requestTenantDTOS, "List of Tenants");
+        return ResponseUtil.getResponse(tenants, "List of Tenants");
     }
 
 

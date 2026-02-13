@@ -13,6 +13,8 @@ import lombok.Setter;
 @NoArgsConstructor
 @AllArgsConstructor
 public class ResponseTenantDTO {
+
+    private String id;
     private String tenantId; 
 
     private String name; 

@@ -1,6 +1,7 @@
 package com.example.backend.model;
 
 import com.example.backend.common.ObjectIdDeserializer;
+import com.example.backend.enums.ResourceStatus;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
@@ -35,10 +36,12 @@ public class Workflow {
     private String name;
     private String description;
     private String departmentId;
-    private String status;
-    private String version="1.0";
+    private ResourceStatus status;
+    private String version;
 
     private List<String> processId;
+
+    private ApprovalMetadata approval;
 
     @Builder.Default
     private WorkflowMetadata metadata= new WorkflowMetadata();

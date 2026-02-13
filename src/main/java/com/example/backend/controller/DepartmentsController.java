@@ -9,12 +9,11 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
-
-import java.util.List;
 
 @RestController
 @RequestMapping("/api/departments")
@@ -35,8 +34,11 @@ public class DepartmentsController {
     @GetMapping
     @PreAuthorize("hasAuthority('READ_DEPARTMENT')")
     @Operation(summary = "Gets all Departments present in a Tenant")
-    public ResponseEntity<ApiResponse<List<DepartmentsDTO>>> getAllDepartments(){
-       return ResponseEntity.status(HttpStatus.OK).body(departmentsService.getAllDepartments());
+    public ResponseEntity<ApiResponse<Page<DepartmentsDTO>>> getAllDepartments(@RequestParam(defaultValue = "0") int page,
+                                                                               @RequestParam(defaultValue = "10") int size,
+                                                                               @RequestParam(defaultValue = "name") String sortBy,
+                                                                               @RequestParam(defaultValue = "asc") String direction){
+       return ResponseEntity.status(HttpStatus.OK).body(departmentsService.getAllDepartments(page, size, sortBy, direction));
     }
 
     @PatchMapping("/{id}")

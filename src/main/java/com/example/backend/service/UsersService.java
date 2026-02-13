@@ -5,8 +5,7 @@ import com.example.backend.dto.SignUpRequest;
 import com.example.backend.dto.UserDTO;
 import com.example.backend.response.ApiResponse;
 import jakarta.validation.Valid;
-
-import java.util.List;
+import org.springframework.data.domain.Page;
 
 public interface UsersService {
      ApiResponse<String> signup(@Valid SignUpRequest signUpRequest);
@@ -15,5 +14,5 @@ public interface UsersService {
 
     ApiResponse<String> removeUser(String userId);
 
-    ApiResponse<List<UserDTO>> getUsersDepartments(String departmentId);
+    ApiResponse<Page<UserDTO>> getUsersDepartments(String departmentId, int page, int size, String sortBy, String direction);
 }

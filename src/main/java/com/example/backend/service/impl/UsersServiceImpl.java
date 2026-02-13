@@ -18,11 +18,14 @@ import com.example.backend.service.UsersService;
 import com.example.backend.utilService.SecurityUtils;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
-import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
@@ -90,17 +93,22 @@ public class UsersServiceImpl implements UsersService {
     }
 
     @Override
-    public ApiResponse<List<UserDTO>> getUsersDepartments(String departmentId) {
+    public ApiResponse<Page<UserDTO>> getUsersDepartments(String departmentId, int page, int size, String sortBy, String direction) {
+        Sort sort = direction.equalsIgnoreCase("desc")
+                ? Sort.by(sortBy).descending()
+                : Sort.by(sortBy).ascending();
+        Pageable pageable = PageRequest.of(page, size, sort);
         String tenantId= SecurityUtils.getTenantId();
         if(departmentsRepository.findByTenantIdAndDepartmentId(tenantId, departmentId).isEmpty()){
             throw new RestApiException("This department does not exists", HttpStatus.BAD_REQUEST);
         }
-        List<Users> users= userRepository.findByTenantIdAndDepartmentId(tenantId, departmentId);
+        Page<UserDTO> users= userRepository.findByTenantIdAndDepartmentId(tenantId, departmentId, pageable)
+                .map(user-> pagebleObject.map(user, UserDTO.class));
+
         if(users.isEmpty()){
             throw new RestApiException("Users not found", HttpStatus.NOT_FOUND);
         }
-        List<UserDTO> userDTOS= pagebleObject.mapList(users, UserDTO.class);
-        return ResponseUtil.getResponse(userDTOS, "Users fetched successfully");
+        return ResponseUtil.getResponse(users, "Users fetched successfully");
     }
 
 

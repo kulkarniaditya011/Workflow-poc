@@ -9,6 +9,7 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -36,8 +37,11 @@ public class TenantController {
     @Operation(summary = "Get all tenants")
     @AdminApi
     @PreAuthorize("hasAuthority('READ_TENANT')")
-    public ResponseEntity<ApiResponse<List<RequestTenantDTO>>> getTenants() {
-        return ResponseEntity.status(HttpStatus.OK).body(tenantService.getAllTenants());
+    public ResponseEntity<ApiResponse<Page<ResponseTenantDTO>>> getTenants(@RequestParam(defaultValue = "0") int page,
+                                                                          @RequestParam(defaultValue = "10") int size,
+                                                                          @RequestParam(defaultValue = "name") String sortBy,
+                                                                          @RequestParam(defaultValue = "asc") String direction) {
+        return ResponseEntity.status(HttpStatus.OK).body(tenantService.getAllTenants(page, size, sortBy, direction));
     }
 
     @PutMapping("/{id}")

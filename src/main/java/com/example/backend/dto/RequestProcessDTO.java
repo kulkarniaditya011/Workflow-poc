@@ -1,6 +1,7 @@
 package com.example.backend.dto;
 
 import com.example.backend.enums.ProcessExecutionPattern;
+import com.example.backend.enums.ResourceStatus;
 import com.example.backend.model.Assignment;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotEmpty;
@@ -23,6 +24,7 @@ public class RequestProcessDTO {
     private String departmentId;
     private ProcessExecutionPattern executionPattern;
     private Assignment defaultAssignment;
+    private ResourceStatus status;
     @Valid
     @NotEmpty(message = "A process must have at least one step")
     private List<StepsDTO> steps;

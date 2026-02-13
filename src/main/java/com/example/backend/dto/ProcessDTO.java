@@ -1,7 +1,8 @@
 package com.example.backend.dto;
 
 import com.example.backend.enums.ProcessExecutionPattern;
-import com.example.backend.enums.ProcessStatus;
+import com.example.backend.enums.ResourceStatus;
+import com.example.backend.model.ApprovalMetadata;
 import com.example.backend.model.Assignment;
 import lombok.*;
 
@@ -17,10 +18,10 @@ public class ProcessDTO {
     private String tenantId;
     private String name;
     private String description;
-    private ProcessStatus status;
+    private ResourceStatus status;
     private String departmentId;
-    private Boolean latest;
     private ProcessExecutionPattern executionPattern;
     private Assignment assignment;
+    private ApprovalMetadata approval;
     private List<StepsDTO> steps;
 }

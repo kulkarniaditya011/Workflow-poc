@@ -17,5 +17,6 @@ public class StepDefinition {
     private StepType type;
     private Assignment assignment;
     private String formId;
+    private ApprovalMetadata approval;
 
 }

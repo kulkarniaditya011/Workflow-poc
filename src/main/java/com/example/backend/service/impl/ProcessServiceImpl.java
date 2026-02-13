@@ -3,11 +3,10 @@ package com.example.backend.service.impl;
 import com.example.backend.common.PagebleObject;
 import com.example.backend.common.ResponseUtil;
 import com.example.backend.common.ValidationUtil;
-import com.example.backend.dto.ProcessDTO;
-import com.example.backend.dto.RequestProcessDTO;
-import com.example.backend.dto.StepsDTO;
-import com.example.backend.enums.ProcessStatus;
+import com.example.backend.dto.*;
+import com.example.backend.enums.ResourceStatus;
 import com.example.backend.exceptions.RestApiException;
+import com.example.backend.model.ApprovalMetadata;
 import com.example.backend.model.Process;
 import com.example.backend.model.StepDefinition;
 import com.example.backend.repository.DepartmentsRepository;
@@ -16,29 +15,30 @@ import com.example.backend.response.ApiResponse;
 import com.example.backend.service.ProcessService;
 import com.example.backend.service.RestheartService;
 import com.example.backend.utilService.SecurityUtils;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.*;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
-import java.util.HashMap;
+import java.time.Instant;
+import java.util.Comparator;
 import java.util.List;
-import java.util.Map;
+import java.util.stream.Collectors;
 
 @Slf4j
 @Service
 @RequiredArgsConstructor
 public class ProcessServiceImpl implements ProcessService {
 
-    private static final String PROCESS_COLLECTION = "process";
+
 
     private final ValidationUtil validationUtil;
     private final DepartmentsRepository departmentsRepository;
     private final PagebleObject pagebleObject;
     private final RestheartService restheartService;
     private final ProcessRepository processRepository;
-    private final ObjectMapper objectMapper;
 
     // ========================= CREATE =========================
 
@@ -47,8 +47,7 @@ public class ProcessServiceImpl implements ProcessService {
 
         validationUtil.validate(dto);
         String tenantId = SecurityUtils.getTenantId();
-
-        ensureLatestProcessDoesNotExist(dto.getProcessId(), tenantId);
+        ensureProcessDoesNotExist(dto.getProcessId(), tenantId);
 
         List<StepDefinition> steps = validateAndMapSteps(dto.getSteps());
 
@@ -58,16 +57,15 @@ public class ProcessServiceImpl implements ProcessService {
                 .name(dto.getName())
                 .description(dto.getDescription())
                 .departmentId(dto.getDepartmentId())
-                .version(1)
-                .status(ProcessStatus.DRAFT)
-                .latest(true)
+                .status(ResourceStatus.PENDING)
                 .executionPattern(dto.getExecutionPattern())
                 .assignment(dto.getDefaultAssignment())
+                .approval(ApprovalMetadata.builder().status(ResourceStatus.PENDING).build())
                 .steps(steps)
                 .build();
         log.info("Creating process: {}", process);
         restheartService
-                .create(PROCESS_COLLECTION, process, Process.class)
+                .create("process", process, Process.class)
                 .block();
 
         return ResponseUtil.getResponseMessage(
@@ -79,41 +77,28 @@ public class ProcessServiceImpl implements ProcessService {
 
 
     @Override
-    public ApiResponse<String> updateProcess(RequestProcessDTO dto, String processId) {
+    public ApiResponse<String> updateProcess(UpdateProcessDTO dto, String processId) {
 
         validationUtil.validate(dto);
         String tenantId = SecurityUtils.getTenantId();
 
-        Process latestProcess = findProcess(processId, tenantId);
-
-        // mark old version as not latest
-        latestProcess.setLatest(false);
-        restheartService
-                .upsert(PROCESS_COLLECTION, latestProcess.getId(), latestProcess, Process.class)
-                .block();
+        Process process = findProcess(processId, tenantId);
+    ApprovalMetadata approval = dto.getApproval();
 
         List<StepDefinition> steps = validateAndMapSteps(dto.getSteps());
-        Process newVersion = Process.builder()
-                .tenantId(tenantId)
-                .processId(processId)
-                .name(dto.getName())
-                .description(dto.getDescription())
-                .departmentId(dto.getDepartmentId())
-                .version(latestProcess.getVersion() + 1)
-                .status(ProcessStatus.DRAFT)
-                .latest(true)
-                .executionPattern(dto.getExecutionPattern())
-                .assignment(dto.getDefaultAssignment())
-                .steps(steps)
-                .build();
+        process.setTenantId(tenantId);
+        process.setProcessId(dto.getProcessId());
+        process.setName(dto.getName());
+        process.setDescription(dto.getDescription());
+        process.setDepartmentId(dto.getDepartmentId());
+        process.setStatus(dto.getApproval().getStatus());
+        process.setExecutionPattern(dto.getExecutionPattern());
+        process.setAssignment(dto.getAssignment());
+        process.setApproval(approval);
+        process.setSteps(steps);
+        processRepository.save(process);
 
-        restheartService
-                .create(PROCESS_COLLECTION, newVersion, Process.class)
-                .block();
-
-        return ResponseUtil.getResponseMessage(
-                "Process updated. New version: " + newVersion.getVersion()
-        );
+        return ResponseUtil.getResponseMessage("Process updated.");
     }
 
     // ========================= GET =========================
@@ -130,56 +115,149 @@ public class ProcessServiceImpl implements ProcessService {
     }
 
     @Override
-    public ApiResponse<List<ProcessDTO>> getAllProcesses() {
+    public ApiResponse<Page<ProcessDTO>> getAllProcesses(int page, int size, String sortBy, String direction) {
 
         String tenantId = SecurityUtils.getTenantId();
-
-        Map<String, Object> filter = Map.of(
-                "tenantId", tenantId,
-                "latest", true
-        );
-
-        List<ProcessDTO> processes = restheartService
-                .getWithFilter(PROCESS_COLLECTION, filter)
-                .map(obj -> objectMapper.convertValue(obj, Process.class))
-                .map(entity -> pagebleObject.map(entity, ProcessDTO.class))
-                .collectList()
-                .block();
+        Sort sort = direction.equalsIgnoreCase("desc")
+                ? Sort.by(sortBy).descending()
+                : Sort.by(sortBy).ascending();
+        Pageable pageable = PageRequest.of(page, size, sort);
+        Page<ProcessDTO> processes= processRepository.findByTenantId(tenantId, pageable)
+                .map(process-> pagebleObject.map(process, ProcessDTO.class));
+        if (!processes.hasContent()) {
+            throw new RestApiException("No processes found", HttpStatus.NOT_FOUND);
+        }
 
         return ResponseUtil.getResponse(processes, "Processes retrieved successfully");
     }
 
     @Override
-    public ApiResponse<List<ProcessDTO>> getWorkflowByDepartment(String departmentId) {
+    public ApiResponse<Page<ProcessDTO>> getProcessByDepartment(String departmentId, int page, int size, String sortBy, String direction) {
         String tenantId= SecurityUtils.getTenantId();
-        if(departmentsRepository.findByTenantIdAndDepartmentId(tenantId, departmentId).isEmpty()){
+        if(doesDepartmentExists(tenantId, departmentId)){
             throw new RestApiException("This department does not exists", HttpStatus.BAD_REQUEST);
         }
-        List<Process> processes= processRepository.findByTenantIdAndDepartmentId(tenantId, departmentId);
-        if (processes == null || processes.isEmpty()) {
-            throw new RestApiException("Processes not found", HttpStatus.NOT_FOUND);
+        Sort sort = direction.equalsIgnoreCase("desc")
+                ? Sort.by(sortBy).descending()
+                : Sort.by(sortBy).ascending();
+        Pageable pageable = PageRequest.of(page, size, sort);
+       Page<ProcessDTO> processDTOs= processRepository.findByTenantIdAndDepartmentId(tenantId, departmentId, pageable)
+               .map(process -> pagebleObject.map(process, ProcessDTO.class));
+        if (!processDTOs.hasContent()) {
+            throw new RestApiException("No processes found", HttpStatus.NOT_FOUND);
         }
-        List<ProcessDTO> processDTOS= pagebleObject.mapList(processes, ProcessDTO.class);
-        return ResponseUtil.getResponse(processDTOS, "Processes retrieved successfully");
+        return ResponseUtil.getResponse(processDTOs, "Processes retrieved successfully");
     }
 
-    // ========================= DELETE (SOFT) =========================
+    @Override
+    @Transactional
+    public ApiResponse<String> approveProcess(String processId, String comment) {
+        String tenantId= SecurityUtils.getTenantId();
+        Process process = processRepository.findByTenantIdAndProcessId(tenantId, processId)
+                .orElseThrow(() -> new RestApiException("No process found", HttpStatus.NOT_FOUND));
+
+        ApprovalMetadata approval= process.getApproval();
+        if (approval == null) {
+            throw new RestApiException(
+                    "Approval metadata not found for process",
+                    HttpStatus.BAD_REQUEST
+            );
+        }
+
+        if(approval.getStatus().equals(ResourceStatus.APPROVED)){
+            return ResponseUtil.getResponseMessage("Process already approved");
+        }
+        if (!approval.getStatus().equals(ResourceStatus.PENDING)) {
+            return ResponseUtil.getResponseMessage("Process maybe rejected");
+        }
+        approval.setStatus(ResourceStatus.APPROVED);
+        approval.setActionBy(SecurityUtils.getUsername());
+        approval.setActionAt(Instant.now());
+        approval.setComment(comment);
+
+        processRepository.save(process);
+        return ResponseUtil.getResponseMessage("Process approved!!");
+    }
+
+    @Override
+    public ApiResponse<String> rejectProcess(String processId, String reason) {
+        String tenantId = SecurityUtils.getTenantId();
+        String approver = SecurityUtils.getUsername();
+
+
+        Process process = processRepository
+                .findByTenantIdAndProcessId(tenantId, processId)
+                .orElseThrow(() ->
+                        new RestApiException("No process found", HttpStatus.NOT_FOUND)
+                );
+
+        ApprovalMetadata approval = process.getApproval();
+
+        validateRejectState(approval);
+        if (approval.getStatus() == ResourceStatus.REJECTED) {
+            return ResponseUtil.getResponseMessage("Process already rejected");
+        }
+
+        approval.setStatus(ResourceStatus.REJECTED);
+        approval.setActionBy(approver);
+        approval.setActionAt(Instant.now());
+        approval.setComment(reason);
+
+        processRepository.save(process);
+
+        return ResponseUtil.getResponseMessage("Process rejected successfully");
+    }
+
+    @Override
+    public ApiResponse<Page<ResponseStepDTO>> getStepsByProcess(String processId, int page, int size, String sortBy, String direction) {
+        String tenantId = SecurityUtils.getTenantId();
+
+        Process process = processRepository
+                .findByTenantIdAndProcessId(tenantId, processId)
+                .orElseThrow(() ->
+                        new RestApiException("No process found", HttpStatus.NOT_FOUND)
+                );
+
+        log.info("Fetching steps for processId={}", processId);
+
+        List<ResponseStepDTO> steps = process.getSteps().stream()
+                .map(step -> pagebleObject.map(step, ResponseStepDTO.class))
+                .collect(Collectors.toList());
+
+        // Safe defaults
+        page = Math.max(page, 0);
+        size = size <= 0 ? 10 : Math.min(size, 100);
+
+        // Sorting
+        Comparator<ResponseStepDTO> comparator = getSortedSteps(sortBy);
+        if ("desc".equalsIgnoreCase(direction)) {
+            comparator = comparator.reversed();
+        }
+        steps.sort(comparator);
+
+        // Pagination
+        int total = steps.size();
+        int fromIndex = Math.min(page * size, total);
+        int toIndex = Math.min(fromIndex + size, total);
+
+        List<ResponseStepDTO> pagedSteps = steps.subList(fromIndex, toIndex);
+
+        Pageable pageable = PageRequest.of(page, size);
+        Page<ResponseStepDTO> result =
+                new PageImpl<>(pagedSteps, pageable, total);
+
+        return ResponseUtil.getResponse(result, "Steps retrieved successfully");
+    }
+
+    // ========================= DELETE =========================
 
     @Override
     public ApiResponse<String> deleteProcess(String processId) {
-
         String tenantId = SecurityUtils.getTenantId();
-        Process process = findProcess(processId, tenantId);
-
-        process.setStatus(ProcessStatus.DEPRECATED);
-
-        restheartService
-                .upsert(PROCESS_COLLECTION, process.getId(), process, Process.class)
-                .block();
-
-        return ResponseUtil.getResponseMessage(
-                "Process deprecated successfully"
-        );
+        Process process = processRepository.findByTenantId(tenantId)
+                .orElseThrow(() -> new RestApiException("No process found", HttpStatus.NOT_FOUND));
+        processRepository.delete(process);
+        return ResponseUtil.getResponseMessage("Process deleted successfully");
     }
 
     // ========================= HELPERS =========================
@@ -193,19 +271,9 @@ public class ProcessServiceImpl implements ProcessService {
         );
     }
 
-    private void ensureLatestProcessDoesNotExist(String processId, String tenantId) {
+    private void ensureProcessDoesNotExist(String processId, String tenantId) {
 
-        Map<String, Object> filter = new HashMap<>();
-        filter.put("tenantId", tenantId);
-        filter.put("processId", processId);
-        filter.put("latest", true);
-
-        Process existing = restheartService
-                .getWithFilter(PROCESS_COLLECTION, filter)
-                .map(obj -> pagebleObject.convertValue(obj, Process.class))
-                .blockFirst();
-
-        if (existing != null) {
+        if (processRepository.findByTenantIdAndProcessId(tenantId, processId).isPresent()) {
             throw new RestApiException(
                     "Process already exists with id: " + processId,
                     HttpStatus.BAD_REQUEST
@@ -213,25 +281,37 @@ public class ProcessServiceImpl implements ProcessService {
         }
     }
 
+
     private Process findProcess(String processId, String tenantId) {
+        return processRepository.findByTenantIdAndProcessId(tenantId, processId)
+                .orElseThrow(() -> new RestApiException("No process found", HttpStatus.NOT_FOUND));
+    }
 
-        Map<String, Object> filter = Map.of(
-                "tenantId", tenantId,
-                "processId", processId
-        );
+    private boolean doesDepartmentExists(String tenantId, String departmentId) {
+       return departmentsRepository.findByTenantIdAndDepartmentId(tenantId, departmentId).isEmpty();
+    }
 
-        Process process = restheartService
-                .getWithFilter(PROCESS_COLLECTION, filter)
-                .map(obj -> pagebleObject.convertValue(obj, Process.class))
-                .blockFirst();
-        log.info("Found process: {}", process);
-        if (process == null) {
-            throw new RestApiException(
-                    "Process not found with id: " + processId,
-                    HttpStatus.NOT_FOUND
-            );
+    private Comparator<ResponseStepDTO> getSortedSteps(String sortBy) {
+        return switch (sortBy) {
+            case "name"-> Comparator.comparing(ResponseStepDTO::getName,
+                    Comparator.nullsLast(String::compareToIgnoreCase));
+            case "order"-> Comparator.comparing(ResponseStepDTO::getOrder,
+                    Comparator.nullsLast(Integer::compareTo));
+            default -> Comparator.comparing(ResponseStepDTO::getStepKey,
+                    Comparator.nullsLast(String::compareToIgnoreCase));
+        };
+    }
+
+
+    private void validateRejectState(ApprovalMetadata approval) {
+
+        if (approval == null) {
+            throw new RestApiException("Approval metadata not found", HttpStatus.BAD_REQUEST);
         }
 
-        return process;
+        if (approval.getStatus() == ResourceStatus.APPROVED) {
+            throw new RestApiException("Approved process cannot be rejected", HttpStatus.BAD_REQUEST);
+        }
     }
+
 }

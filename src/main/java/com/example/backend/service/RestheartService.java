@@ -6,12 +6,9 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.web.reactive.function.client.WebClient;
-import org.springframework.web.util.UriUtils;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
-import java.nio.charset.StandardCharsets;
-import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
@@ -58,33 +55,7 @@ public class RestheartService {
     }
 
 
-    public Mono<Map> findById(String collection, String id){
-        return restHeartWebClient
-                .get()
-                .uri("workflow_platform/{collection}/{id}", collection, id)
-                .retrieve()
-                .bodyToMono(Map.class);
-    }
 
-    public Flux<Map> getAll(String collection){
-      return restHeartWebClient
-                .get()
-                .uri("workflow_platform/{collection}", collection)
-                .retrieve()
-                .bodyToFlux(Map.class);
-    }
-
-    public Flux<Map> getWithQuery(String collection, Map<String, Object> queryParams) {
-        return restHeartWebClient
-                .get()
-                .uri(uriBuilder -> {
-                    uriBuilder.path("{collection}");
-                    queryParams.forEach(uriBuilder::queryParam);
-                    return uriBuilder.build(collection);
-                })
-                .retrieve()
-                .bodyToFlux(Map.class);
-    }
 
 
     public Flux<Map> getWithFilter(String collection, Map<String, Object> equalsFilters) {
@@ -111,14 +82,6 @@ public class RestheartService {
         }
     }
 
-    public Mono<Map> patch(String collection, String documentId, Map<String, Object> updates) {
-        return restHeartWebClient
-                .patch()
-                .uri("workflow_platform/{collection}/{id}", collection, documentId)
-                .bodyValue(updates)
-                .retrieve()
-                .bodyToMono(Map.class);
-    }
 
     public Mono<Void> delete(String collection, String documentId) {
         return restHeartWebClient

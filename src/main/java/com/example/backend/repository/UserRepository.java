@@ -1,6 +1,8 @@
 package com.example.backend.repository;
 
 import com.example.backend.model.Users;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.mongodb.repository.MongoRepository;
 import org.springframework.data.mongodb.repository.Query;
 import org.springframework.stereotype.Repository;
@@ -25,5 +27,5 @@ public interface UserRepository extends MongoRepository<Users, String> {
     @Query(value = "{ 'roles': ?0 }", exists = true)
     boolean existsByRole(String role);
 
-    List<Users> findByTenantIdAndDepartmentId(String tenantId, String departmentId);
+    Page<Users> findByTenantIdAndDepartmentId(String tenantId, String departmentId, Pageable pageable);
 }

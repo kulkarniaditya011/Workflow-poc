@@ -10,12 +10,11 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
-
-import java.util.List;
 
 @RequestMapping("/api/users")
 @RequiredArgsConstructor
@@ -45,13 +44,20 @@ public class UserController {
     @DeleteMapping("/{id}")
     @AdminApi
     @Operation(summary = "Deletes a user")
+    @PreAuthorize("hasAuthority('DELETE_USER')")
     public ResponseEntity<ApiResponse<String>> deleteUser(@PathVariable(value = "id") String userId){
         return ResponseEntity.status(HttpStatus.OK).body(userService.removeUser(userId));
     }
 
     @GetMapping("departments/{id}")
-    public ResponseEntity<ApiResponse<List<UserDTO>>> getUserByDepartment(@PathVariable("id") String departmentId){
-        return ResponseEntity.status(HttpStatus.OK).body(userService.getUsersDepartments(departmentId));
+    @PreAuthorize("hasAuthority('READ_USER')")
+    @Operation(summary = "Returns a list of users present in a department")
+    public ResponseEntity<ApiResponse<Page<UserDTO>>> getUsersByDepartment(@PathVariable("id") String departmentId,
+                                                                           @RequestParam(defaultValue = "0") int page,
+                                                                           @RequestParam(defaultValue = "10") int size,
+                                                                           @RequestParam(defaultValue = "name") String sortBy,
+                                                                           @RequestParam(defaultValue = "asc") String direction){
+        return ResponseEntity.status(HttpStatus.OK).body(userService.getUsersDepartments(departmentId, page, size, sortBy, direction));
     }
 
 }

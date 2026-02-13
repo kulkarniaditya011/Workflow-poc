@@ -1,5 +1,6 @@
 package com.example.backend.dto;
 
+import com.example.backend.enums.ResourceStatus;
 import com.example.backend.model.WorkflowMetadata;
 import jakarta.validation.constraints.NotEmpty;
 import lombok.*;
@@ -17,7 +18,7 @@ public class UpdateWorkflowDTO {
     private String name;
     private String description;
     private String departmentId;
-    private String status;
+    private ResourceStatus status;
     private String version;
 
     private List<String> processes;

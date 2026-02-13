@@ -1,22 +1,27 @@
 package com.example.backend.service;
 
 import com.example.backend.dto.CreateFormDTO;
-import com.example.backend.dto.FormsDTO;
+import com.example.backend.dto.FormResponseDTO;
+import com.example.backend.dto.UpdateFormDTO;
 import com.example.backend.response.ApiResponse;
 import jakarta.validation.Valid;
-
-import java.util.List;
+import org.springframework.data.domain.Page;
 
 public interface FormsService {
     ApiResponse<String> createForms(@Valid CreateFormDTO formsDTO);
 
-    ApiResponse<FormsDTO> getFormsByFormId(String formId);
+    ApiResponse<FormResponseDTO> getFormsByFormId(String formId);
 
-    ApiResponse<String> updateForm(String payload, String formId);
+    ApiResponse<String> updateForm(UpdateFormDTO payload, String formId);
 
     ApiResponse<String> deleteForms(String formId);
 
-    ApiResponse<List<FormsDTO>> getAllForms();
+    ApiResponse<Page<FormResponseDTO>> getAllForms(int page, int size, String sortBy, String direction);
 
-    ApiResponse<List<FormsDTO>> getFormsByDepartment(String id);
+    ApiResponse<Page<FormResponseDTO>> getFormsByDepartment(String id, int page, int size, String sortBy, String direction);
+
+    ApiResponse<String> approveForm(String formId, String comment);
+
+    ApiResponse<String> rejectForm(String formId, String reason);
 }
+
